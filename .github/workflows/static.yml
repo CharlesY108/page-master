@@ -26,21 +26,21 @@ jobs:
         with:
           fetch-depth: 0
 
-      # 步骤1：先安装 pnpm（关键：先有 pnpm，再配置缓存）
+      # 步骤1：先安装 pnpm
       - name: 安装 pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: latest # 安装最新版 pnpm
-          run_install: false # 暂不安装依赖
+          version: latest
+          run_install: false
 
-      # 步骤2：配置 Node.js（移除 package-manager，只指定版本和缓存类型）
+      # 步骤2：配置 Node.js
       - name: 设置 Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "pnpm" # 缓存 pnpm 依赖（此时 pnpm 已安装，可正常识别）
+          cache: "pnpm"
 
-      # 步骤3：用 pnpm 安装依赖（此时环境已存在 pnpm）
+      # 步骤3：安装项目依赖
       - name: 安装项目依赖
         run: pnpm install --frozen-lockfile
         if: success()
@@ -65,15 +65,14 @@ jobs:
         uses: actions/configure-pages@v5
         if: success()
 
-      # 步骤7：上传 dist 产物
+      # 步骤7：上传 dist 产物（使用默认名称 github-pages）
       - name: 上传 dist 产物
         uses: actions/upload-pages-artifact@v3
         with:
-          name: vue-app-pages
-          path: "./dist"
+          path: "./dist" # 删除 name 字段，默认名称就是 github-pages
         if: success()
 
-      # 步骤8：部署到 GitHub Pages
+      # 步骤8：部署到 GitHub Pages（自动识别 github-pages  artifact）
       - name: 部署到 GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
