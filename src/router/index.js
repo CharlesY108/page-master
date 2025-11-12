@@ -47,7 +47,8 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  // 用 createWebHistory，会导致 GitHub Pages 空白
+  history: createWebHashHistory(import.meta.env.BASE_URL), // 改为 hash 模式（关键）
   routes
 })
 
