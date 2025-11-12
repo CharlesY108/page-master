@@ -30,20 +30,25 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          package-manager: "pnpm"
-          cache: "pnpm"
+          package-manager: "pnpm" # 明确指定 pnpm
+          cache: "pnpm" # 缓存 pnpm 依赖（加速构建）
 
-      - name: 安装依赖
-        run: pnpm install
-        # 依赖安装失败则终止工作流
+      # 关键步骤：安装 pnpm（GitHub 环境默认没有 pnpm，需手动安装）
+      - name: 安装 pnpm
+        uses: pnpm/action-setup@v4 # pnpm 官方提供的安装动作
+        with:
+          version: latest # 安装最新版 pnpm（也可指定版本，如 9.0.0）
+          run_install: false # 暂不安装依赖，后续手动执行
+
+      - name: 安装项目依赖（用 pnpm）
+        run: pnpm install --frozen-lockfile # 锁定依赖版本，避免波动
         if: success()
 
-      - name: 构建项目
+      - name: 构建项目（用 pnpm）
         run: pnpm run build
-        # 构建失败则终止工作流
         if: success()
 
-      - name: 验证 dist 目录存在（关键检查）
+      - name: 验证 dist 目录存在
         run: |
           if [ ! -d "dist" ]; then
             echo "错误：构建后未生成 dist 目录！"
@@ -56,11 +61,11 @@ jobs:
         uses: actions/configure-pages@v5
         if: success()
 
-      - name: 上传 dist 产物（仅上传构建后文件）
+      - name: 上传 dist 产物
         uses: actions/upload-pages-artifact@v3
         with:
           name: vue-app-pages
-          path: "./dist" # 强制只上传 dist 目录
+          path: "./dist"
         if: success()
 
       - name: 部署到 GitHub Pages
