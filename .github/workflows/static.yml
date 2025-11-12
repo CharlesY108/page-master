@@ -30,7 +30,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          package-manager: "pnpm" # 明确指定 pnpm
           cache: "pnpm" # 缓存 pnpm 依赖（加速构建）
 
       # 关键步骤：安装 pnpm（GitHub 环境默认没有 pnpm，需手动安装）
