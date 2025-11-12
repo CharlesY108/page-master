@@ -30,15 +30,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm"
+          cache: "pnpm"
 
       - name: 安装依赖
-        run: npm install
+        run: pnpm install
         # 依赖安装失败则终止工作流
         if: success()
 
       - name: 构建项目
-        run: npm run build
+        run: pnpm run build
         # 构建失败则终止工作流
         if: success()
 
