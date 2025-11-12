@@ -1,0 +1,1 @@
+import{_ as s,a,b as e,M as c}from"./index-kpBOKnAc.js";const o={class:"page-content"},n={__name:"Metrics",setup(r){return(_,t)=>(c(),a("div",o,[...t[0]||(t[0]=[e("div",{class:"content"},[e("h2",null,"要素指标页面"),e("p",null,"要素指标相关功能开发中...")],-1)])]))}},p=s(n,[["__scopeId","data-v-aac63776"]]);export{p as default};

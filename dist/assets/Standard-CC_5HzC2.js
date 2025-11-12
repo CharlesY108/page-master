@@ -1,1 +1,0 @@
-import{_ as e,a as s,b as t,M as n}from"./index-CDa_ZBcm.js";const o={class:"page-content"},c={__name:"Standard",setup(r){return(_,a)=>(n(),s("div",o,[...a[0]||(a[0]=[t("div",{class:"content"},[t("h2",null,"标准规范页面"),t("p",null,"标准规范相关功能开发中...")],-1)])]))}},l=e(c,[["__scopeId","data-v-59c0235d"]]);export{l as default};
