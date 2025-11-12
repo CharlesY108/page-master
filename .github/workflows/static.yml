@@ -30,6 +30,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
+          package-manager: "pnpm"
           cache: "pnpm"
 
       - name: 安装依赖
