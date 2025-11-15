@@ -4,15 +4,27 @@
     <div class="top-charts">
       <!-- 固井合格率图表 -->
       <div class="chart-card">
-        <div class="chart-title">固井质量概况</div>
+        <div class="chart-title" style="display: flex; justify-content:space-between; align-items: center;">
+          固井质量概况
+          <div class="time-selector" style="margin-left: 10px;">
+            <el-date-picker v-model="dateRange" type="daterange" range-separator="至" start-placeholder="开始日期"
+              end-placeholder="结束日期" />
+          </div>
+        </div>
         <div ref="qualificationRateRef" class="chart-container"></div>
       </div>
 
       <!-- 不合格井与控制项关系图1 -->
       <div class="chart-card">
-        <div class="chart-title">质量不合格井与不合格控制项的对应关系</div>
-        <div ref="unqualifiedRelationRef" class="chart-container"></div>
-        <div class="pie-table">
+        <div class="chart-title" style="display: flex; justify-content: start; align-items: center;">
+          质量不合格井与不合格控制项的对应关系
+          <div class="time-selector" style="margin-left: 10px;"> <el-date-picker v-model="dateRange" type="daterange"
+              range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" /></div>
+        </div>
+        <!-- echarts 和 pie-table 联动 -->
+
+        <div ref="unqualifiedRelationRef" class="chart-container" @click="handleUnqualifiedRelationClick"></div>
+        <div class="pie-table" v-if="showPieTable" @click="handlePieTableClick">
           <div class="title">
             {{ secondPictureData.leftTableTitle }}
           </div>
@@ -28,125 +40,151 @@
 
       <!-- 合格井与控制项关系图2 -->
       <div class="chart-card">
-        <div class="chart-title">质量合格井与不合格控制项的对应关系</div>
-        <div ref="qualifiedRelationRef" class="chart-container"></div>
-        <div class="pie-table">
+        <div class="chart-title" style="display: flex; justify-content: start; align-items: center;">
+          质量合格井与不合格控制项的对应关系
+          <div class="time-selector" style="margin-left: 10px;"> <el-date-picker v-model="dateRange" type="daterange"
+              range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" /></div>
+        </div>
+        <div ref="qualifiedRelationRef" class="chart-container" @click="handleQualifiedRelationClick"></div>
+        <div class="pie-table" v-if="showPieTable" @click="handlePieTableClick">
           <div class="title">
-            {{ secondPictureData.leftTableTitle }}
+            {{ secondPictureData2.leftTableTitle }}
           </div>
           <div v-for="(item, index) in iconList" :key="item.id" class="table-item">
             <span class="circle" />
             <span class="title">{{ item.id }}.{{ item.title }}</span>
             <span class="value">{{
-              secondPictureData.leftTableData[index]
+              secondPictureData2.leftTableData[index]
             }}</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 筛选区域 -->
-    <el-form :inline="true" class="filter-form">
-      <el-form-item label="时间段">
-        <el-date-picker v-model="dateRange" type="daterange" range-separator="至" start-placeholder="开始日期"
-          end-placeholder="结束日期" />
-      </el-form-item>
-      <el-form-item label="井型">
-        <el-input v-model="wellType" placeholder="请输入井型" />
-      </el-form-item>
-      <el-form-item label="井别">
-        <el-input v-model="wellCategory" placeholder="请输入井别" />
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="handleQuery">查询</el-button>
-      </el-form-item>
-      <el-form-item>
-        <el-button @click="handleReset">重置</el-button>
-      </el-form-item>
-    </el-form>
+    <div class="filter-form">
+      <div class="chart-title">固井质量详情</div>
 
-    <!-- 数据表格 -->
-    <el-table :data="tableData" border class="data-table">
-      <el-table-column prop="serial" label="序号" width="80" align="center" />
-      <el-table-column prop="projectDept" label="项目部" align="center" />
-      <el-table-column prop="wellCount" label="井数(口)" align="center" />
-      <el-table-column prop="processScore" label="过程综合评分" align="center" />
-      <el-table-column prop="resultScore" label="结果综合评分" align="center" />
-      <el-table-column prop="unqualifiedLines" label="不合格红线" align="center" />
-      <el-table-column label="操作" align="center">
-        <template #default>
-          <!-- 过程控制项权重校核 -->
-          <el-button type="text" class="operation-btn" @click="handleWeightDialog">过程控制项权重校核</el-button>
+      <!-- 筛选区域 -->
+      <el-form :inline="true">
+        <el-form-item label="时间段">
+          <el-date-picker v-model="dateRange" type="daterange" range-separator="至" start-placeholder="开始日期"
+            end-placeholder="结束日期" />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="handleQuery">查询</el-button>
+          <el-button @click="handleReset">重置</el-button>
+        </el-form-item>
+      </el-form>
 
-          <!-- 质量结果分析模型 -->
-          <el-button type="text" class="operation-btn" @click="handleResultAnalysisDialog">质量结果分析模型</el-button>
+      <!-- 数据表格 -->
+      <el-table :data="tableData" border class="data-table">
+        <el-table-column prop="serial" label="序号" width="80" align="center" />
+        <el-table-column prop="projectDept" label="项目部" align="center" />
+        <el-table-column prop="projectGroup" label="项目组" align="center">
+          <template #default="{ row }">
+            <!-- 下拉框：一组、二组、三组 -->
+            <el-select v-model="row.projectGroup" placeholder="请选择项目组">
+              <el-option label="全部" value="全部" />
+              <el-option label="一组" value="一组" />
+              <el-option label="二组" value="二组" />
+              <el-option label="三组" value="三组" />
+            </el-select>
+          </template>
+        </el-table-column>
+        <el-table-column prop="wellType" label="井型" align="center">
+          <template #default="{ row }">
+            <!-- 下拉框：定向井、直井、斜井 -->
+            <el-select v-model="row.wellType" placeholder="请选择井型">
+              <el-option label="全部" value="全部" />
+              <el-option label="定向井" value="定向井" />
+              <el-option label="直井" value="直井" />
+              <el-option label="斜井" value="斜井" />
+            </el-select>
+          </template>
+        </el-table-column>
+        <el-table-column prop="wellCategory" label="井别" align="center">
+          <template #default="{ row }">
+            <!-- 下拉框：油井、气井、ccus井 -->
+            <el-select v-model="row.wellCategory" placeholder="请选择井别">
+              <el-option label="全部" value="全部" />
+              <el-option label="油井" value="油井" />
+              <el-option label="气井" value="气井" />
+              <el-option label="ccus井" value="ccus井" />
+            </el-select>
+          </template>
+        </el-table-column>
+        <el-table-column prop="wellCount" label="井数(口)" align="center" />
+        <el-table-column prop="processScore" label="过程综合评分（平均）" align="center" />
+        <el-table-column prop="resultScore" label="结果综合评分（平均）" align="center" />
+        <el-table-column prop="unqualifiedLines" label="不合格红线（总条数）" align="center" />
+        <el-table-column label="操作" align="center" width="300px">
+          <template #default>
+            <!-- 过程评分校核 -->
+            <el-button type="primary" size="small" @click="handleWeightDialog">过程评分校核</el-button>
+
+            <!-- 结果评分详情 -->
+            <el-button type="success" size="small" @click="handleResultAnalysisDialog">结果评分详情</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <!-- 过程评分校核弹窗 -->
+      <el-dialog v-model="showWeightDialog" title="过程评分校核" width="90%">
+        <div style="display: flex; gap: 20px; height: 60vh;">
+          <div style="width: 50%; height: 100%; display: flex; align-items: center; justify-content: center;">
+            <el-table :data="weightData" border>
+              <el-table-column prop="controlItem" label="控制项" />
+              <el-table-column prop="weight" label="权重" />
+              <el-table-column prop="weight" label="权重" />
+              <el-table-column prop="weight" label="权重" />
+            </el-table>
+          </div>
+          <div ref="weightChartRef" class="chart-container" style="width: 50%; height: 100%;"></div>
+        </div>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="handleCloseWeightDialog">取 消</el-button>
+            <el-button type="primary" @click="handleCloseWeightDialog">确 定</el-button>
+          </span>
         </template>
-      </el-table-column>
-    </el-table>
+      </el-dialog>
 
-    <!-- 分页 -->
-    <div class="pagination-container">
-      <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage"
-        :page-sizes="[10, 20, 50]" :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper"
-        :total="tableData.length" />
-    </div>
-
-    <!-- 过程控制项权重校核弹窗 -->
-    <el-dialog v-model="showWeightDialog" title="过程控制项权重校核" width="90%">
-      <div style="display: flex; gap: 20px; height: 700px;">
-        <div style="width: 50%; height: 100%; display: flex; align-items: center; justify-content: center;">
-          <el-table :data="weightData" border>
-            <el-table-column prop="controlItem" label="控制项" />
-            <el-table-column prop="weight" label="权重" />
-            <el-table-column prop="weight" label="权重" />
-            <el-table-column prop="weight" label="权重" />
-          </el-table>
+      <!-- 结果评分详情弹窗 -->
+      <el-dialog v-model="showResultAnalysisDialog" title="结果评分详情" width="90%">
+        <div style="display: flex; gap: 20px; height: 700px;">
+          <!-- 质量分析模型准确率柱状图 -->
+          <div ref="accuracyChartRef" class="chart-container" style="width: 50%; height: 100%;"></div>
+          <!-- 关键特征控制因素权重比饼图 -->
+          <div ref="keyFeatureControlFactorWeightPieChartRef" class="chart-container" style="width: 50%; height: 100%;">
+          </div>
         </div>
-        <div ref="weightChartRef" class="chart-container" style="width: 50%; height: 100%;"></div>
-      </div>
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="handleCloseWeightDialog">取 消</el-button>
-          <el-button type="primary" @click="handleCloseWeightDialog">确 定</el-button>
-        </span>
-      </template>
-    </el-dialog>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="handleCloseResultAnalysisDialog">取 消</el-button>
+            <el-button type="primary" @click="handleCloseResultAnalysisDialog">确 定</el-button>
+          </span>
+        </template>
+      </el-dialog>
 
-    <!-- 质量结果分析模型弹窗 -->
-    <el-dialog v-model="showResultAnalysisDialog" title="质量结果分析模型" width="90%">
-      <div style="display: flex; gap: 20px; height: 700px;">
-        <!-- 质量分析模型准确率柱状图 -->
-        <div ref="accuracyChartRef" class="chart-container" style="width: 50%; height: 100%;"></div>
-        <!-- 关键特征控制因素权重比饼图 -->
-        <div ref="keyFeatureControlFactorWeightPieChartRef" class="chart-container" style="width: 50%; height: 100%;">
+      <!-- 底部图表区域 -->
+      <div class="bottom-charts">
+        <!-- 区块平均合格率 -->
+        <div class="chart-card">
+          <div class="chart-title">过程综合评分（平均）统计图</div>
+          <div ref="avgQualificationRef" class="chart-container"></div>
         </div>
-      </div>
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="handleCloseResultAnalysisDialog">取 消</el-button>
-          <el-button type="primary" @click="handleCloseResultAnalysisDialog">确 定</el-button>
-        </span>
-      </template>
-    </el-dialog>
 
-    <!-- 底部图表区域 -->
-    <div class="bottom-charts">
-      <!-- 区块平均合格率 -->
-      <div class="chart-card">
-        <div class="chart-title">对比每个区块的单井平均合格率</div>
-        <div ref="avgQualificationRef" class="chart-container"></div>
-      </div>
+        <!-- 区块不合格井个数 -->
+        <div class="chart-card">
+          <div class="chart-title">结果综合评分（平均）统计图</div>
+          <div ref="unqualifiedCountRef" class="chart-container"></div>
+        </div>
 
-      <!-- 区块不合格井个数 -->
-      <div class="chart-card">
-        <div class="chart-title">对比每个区块不合格井个数</div>
-        <div ref="unqualifiedCountRef" class="chart-container"></div>
-      </div>
-
-      <!-- 区块控制项平均合格率 -->
-      <div class="chart-card">
-        <div class="chart-title">对比每个区块的每个控制项的平均合格率</div>
-        <div ref="controlItemQualificationRef" class="chart-container"></div>
+        <!-- 不合格红线（总条数）分布图 -->
+        <div class="chart-card">
+          <div class="chart-title">不合格红线（总条数）分布图</div>
+          <div ref="controlItemQualificationRef" class="chart-container"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -174,7 +212,10 @@ const pageSize = ref(10);
 const tableData = ref([
   {
     serial: 1,
-    projectDept: "项目部1",
+    projectDept: "第一项目部",
+    wellType: "全部",
+    wellCategory: "全部",
+    projectGroup: "全部",
     wellCount: 1,
     processScore: 34,
     resultScore: 3,
@@ -182,7 +223,10 @@ const tableData = ref([
   },
   {
     serial: 2,
-    projectDept: "项目部2",
+    projectDept: "第二项目部",
+    wellType: "全部",
+    wellCategory: "全部",
+    projectGroup: "全部",
     wellCount: 2,
     processScore: 17,
     resultScore: 62,
@@ -190,7 +234,10 @@ const tableData = ref([
   },
   {
     serial: 3,
-    projectDept: "项目部3",
+    projectDept: "第三项目部",
+    wellType: "全部",
+    wellCategory: "全部",
+    projectGroup: "全部",
     wellCount: 3,
     processScore: 45,
     resultScore: 17,
@@ -198,7 +245,10 @@ const tableData = ref([
   },
   {
     serial: 4,
-    projectDept: "项目部4",
+    projectDept: "第四项目部",
+    wellType: "全部",
+    wellCategory: "全部",
+    projectGroup: "全部",
     wellCount: 4,
     processScore: 66,
     resultScore: 56,
@@ -206,28 +256,16 @@ const tableData = ref([
   },
   {
     serial: 5,
-    projectDept: "项目部5",
+    projectDept: "苏里格项目部",
+    wellType: "全部",
+    wellCategory: "全部",
+    projectGroup: "全部",
     wellCount: 5,
     processScore: 33,
     resultScore: 35,
     unqualifiedLines: 73,
   },
-  {
-    serial: 6,
-    projectDept: "项目部6",
-    wellCount: 2,
-    processScore: 78,
-    resultScore: 82,
-    unqualifiedLines: 12,
-  },
-  {
-    serial: 7,
-    projectDept: "项目部7",
-    wellCount: 6,
-    processScore: 52,
-    resultScore: 49,
-    unqualifiedLines: 38,
-  },
+
 ]);
 
 // 图表容器引用
@@ -238,6 +276,36 @@ const avgQualificationRef = ref(null);
 const unqualifiedCountRef = ref(null);
 const controlItemQualificationRef = ref(null);
 
+// 是否显示 pie-table
+const showPieTable = ref(true);
+
+// 处理 pie-table 点击事件
+const handlePieTableClick = () => {
+  showPieTable.value = !showPieTable.value;
+};
+
+// 处理 unqualifiedRelation 点击事件
+const handleUnqualifiedRelationClick = () => {
+  nextTick(() => {
+    iconList.value.forEach(item => {
+      item.value = Math.ceil(Math.random() * 100);
+    });
+    secondPictureData.value.leftTableData = iconList.value.map(item => item.value);
+    showPieTable.value = true;
+  });
+};
+
+const handleQualifiedRelationClick = () => {
+  showPieTable.value = true;
+  nextTick(() => {
+    iconList.value.forEach(item => {
+      item.value = Math.ceil(Math.random() * 100);
+    });
+    secondPictureData2.value.leftTableData = iconList.value.map(item => item.value);
+    showPieTable.value = true;
+  });
+};
+
 // 初始化图表
 const initCharts = () => {
   // 1. 固井合格率图表
@@ -247,7 +315,7 @@ const initCharts = () => {
       trigger: "axis",
       axisPointer: { type: "shadow" },
     },
-    grid: { left: "3%", right: "4%", bottom: "3%", containLabel: true },
+    grid: { left: "3%", right: "10%", bottom: "3%", containLabel: true },
     xAxis: {
       type: "category",
       data: ["一部", "二部", "三部", "四部", "苏里格", "整体"],
@@ -551,43 +619,68 @@ const initCharts = () => {
     ],
   });
 
-  // 6. 区块控制项平均合格率
+  // 6. 不合格红线（总条数）分布图
   const controlItemQualificationChart = echarts.init(
     controlItemQualificationRef.value
   );
   controlItemQualificationChart.setOption({
-    tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
-    grid: { left: "3%", right: "4%", bottom: "3%", containLabel: true },
-    xAxis: {
-      type: "category",
-      data: ["区块A", "区块B", "区块C", "区块D", "区块E"],
+    legend: {
+      top: "5%",
+      transform: "translateY(-50%)",
+      show: true,
     },
-    yAxis: { type: "value", name: "合格率(%)", max: 100 },
     series: [
       {
-        name: "控制项1",
-        type: "bar",
-        data: [85, 92, 78, 88, 90],
-      },
-      {
-        name: "控制项2",
-        type: "bar",
-        data: [75, 82, 88, 76, 85],
-      },
-      {
-        name: "控制项3",
-        type: "bar",
-        data: [90, 85, 92, 80, 78],
-      },
-      {
-        name: "控制项4",
-        type: "bar",
-        data: [82, 78, 85, 90, 88],
-      },
-      {
-        name: "控制项5",
-        type: "bar",
-        data: [88, 90, 76, 82, 92],
+        name: "不合格红线（总条数）",
+        type: "pie",
+        tooltip: {
+          trigger: "item",
+          formatter: "{a} <br/>{b}: {c} ({d}%)",
+        },
+        selectedMode: false,
+        itemStyle: {
+          borderRadius: 10,
+          borderColor: "#fff",
+          borderWidth: 0,
+        },
+        label: {
+          show: true,
+          position: "center",
+          formatter: `{total|${100}}` + `\n\r` + `{active|不合格红线（总条数）}`,
+          rich: {
+            total: {
+              fontSize: 35,
+              fontFamily: "微软雅黑",
+              color: "#2c4b77",
+              fontWeight: "bold",
+            },
+            active: {
+              fontFamily: "微软雅黑",
+              fontSize: 16,
+              color: "#2c4b77",
+              fontWeight: "bold",
+              lineHeight: 30,
+            },
+          },
+        },
+        radius: ["55%", "70%"],
+        center: ["50%", "50%"],
+        emphasis: {
+          scale: true,
+          scaleSize: 8,
+          itemStyle: {
+            borderRadius: 10,
+            borderColor: "rgba(159,159,159,0.4)",
+            borderWidth: 0,
+          },
+        },
+        data: [
+          { value: 82, name: "红线1", itemStyle: { color: "#409eff" } },
+          { value: 325, name: "红线2", itemStyle: { color: "#5dd5a5" } },
+          { value: 528, name: "红线3", itemStyle: { color: "#5c6f8d" } },
+          { value: 107, name: "红线4", itemStyle: { color: "#5adbf6" } },
+          { value: 210, name: "红线5", itemStyle: { color: "#faad14" } },
+        ],
       },
     ],
   });
@@ -605,7 +698,7 @@ const initCharts = () => {
 
 };
 
-// 过程控制项权重校核弹窗相关
+// 过程评分校核弹窗相关
 const showWeightDialog = ref(false);
 const weightData = ref([
   { controlItem: "控制项1", weight: 0.1 },
@@ -669,7 +762,7 @@ const handleCloseWeightDialog = () => {
   showWeightDialog.value = false;
 };
 
-// 质量结果分析模型弹窗相关
+// 结果评分详情弹窗相关
 const showResultAnalysisDialog = ref(false);
 const accuracyChartRef = ref(null);
 const keyFeatureControlFactorWeightPieChartRef = ref(null);
@@ -861,12 +954,17 @@ const handleCloseResultAnalysisDialog = () => {
 };
 
 
-const secondPictureData = {
-  leftTableData: [10, 14, 20, 14, 21, 35, 14, 8, 6],
-  leftTableTitle: "全部",
-};
+const secondPictureData = ref({
+  leftTableData: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+  leftTableTitle: "不合格控制项",
+});
 
-const iconList = [
+const secondPictureData2 = ref({
+  leftTableData: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+  leftTableTitle: "不合格控制项",
+});
+
+const iconList = ref([
   {
     id: 1,
     icon: "formulation",
@@ -930,7 +1028,7 @@ const iconList = [
     activeName: "ninth",
     stepName: "stepDataNine",
   },
-];
+]);
 
 // 页面加载完成后初始化图表
 onMounted(() => {
@@ -1084,5 +1182,21 @@ const handleCurrentChange = (page) => {
   display: flex;
   justify-content: flex-end;
   margin-bottom: 20px;
+}
+
+.time-selector {
+  width: 250px;
+
+  :deep(.el-date-editor.el-input) {
+    width: 100%;
+  }
+
+  :deep(.el-range-editor.el-input__wrapper) {
+    width: 100%;
+    align-items: center;
+    display: inline-flex;
+    padding: 0 10px;
+    vertical-align: middle;
+  }
 }
 </style>

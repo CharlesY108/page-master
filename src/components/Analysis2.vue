@@ -7,22 +7,54 @@
           <span>单井基础数据</span>
         </div>
       </template>
+      <!-- 根据 wellBaseData 数据，生成一个查询表单    -->
+      <el-form :inline="true" class="filter-form">
+        <el-form-item label="井号">
+          <el-input v-model="wellNumber" placeholder="请输入井号" />
+        </el-form-item>
+        <el-form-item label="项目部">
+          <el-input v-model="projectDept" placeholder="请输入项目部" />
+        </el-form-item>
+        <el-form-item label="项目组">
+          <el-input v-model="projectGroup" placeholder="请输入项目组" />
+        </el-form-item>
+        <el-form-item label="区块">
+          <el-input v-model="block" placeholder="请输入区块" />
+        </el-form-item>
+        <el-form-item label="任务类型">
+          <el-input v-model="taskType" placeholder="请输入任务类型" />
+        </el-form-item>
+        <el-form-item label="井别">
+          <el-input v-model="wellCategory" placeholder="请输入井别" />
+        </el-form-item>
+        <el-form-item label="井型">
+          <el-input v-model="wellType" placeholder="请输入井型" />
+        </el-form-item>
+        <el-form-item label="时间段">
+          <el-date-picker v-model="dateRange" type="daterange" range-separator="至" start-placeholder="开始日期"
+            end-placeholder="结束日期" />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="handleQuery">查询</el-button>
+        </el-form-item>
+      </el-form>
       <el-table :data="wellBaseData" border style="width: 100%">
-        <el-table-column prop="序号" label="序号" width="80" />
-        <el-table-column prop="建设性质" label="建设性质" />
-        <el-table-column prop="井型" label="井型" />
-        <el-table-column prop="白水井型" label="白水井型" />
-        <el-table-column prop="领域分类" label="领域分类" />
-        <el-table-column prop="施工队伍" label="施工队伍" />
+        <el-table-column prop="序号" label="序号" />
+        <el-table-column prop="井号" label="井号" />
+        <el-table-column prop="项目部" label="项目部" />
+        <el-table-column prop="项目组" label="项目组" />
         <el-table-column prop="区块" label="区块" />
         <el-table-column prop="队号" label="队号" />
-        <el-table-column prop="总开钻井深" label="总开钻井深" />
-        <el-table-column prop="设计井深" label="设计井深" />
-        <el-table-column prop="当前施工月" label="当前施工月" />
-        <el-table-column prop="入井液类型" label="入井液类型" />
+        <el-table-column prop="任务类型" label="任务类型" />
+        <el-table-column prop="井别" label="井别" />
+        <el-table-column prop="井型" label="井型" />
+        <el-table-column prop="完钻日期" label="完钻日期" />
         <el-table-column prop="完钻周期" label="完钻周期" />
-        <el-table-column prop="最终得分" label="最终得分" />
-        <el-table-column prop="操作" label="操作">
+        <el-table-column prop="过程评分" label="过程评分" />
+        <el-table-column prop="结果评分" label="结果评分" />
+        <el-table-column prop="封固合格率" label="封固合格率" />
+        <el-table-column prop="不合格红线（总条数）" label="不合格红线（总条数）" />
+        <el-table-column prop="操作" label="操作" width="180px" align="center">
           <template #default>
             <el-button type="primary" size="small">查看</el-button>
             <el-button type="info" size="small">详情</el-button>
@@ -86,71 +118,120 @@
 import { ref, onMounted } from 'vue';
 import * as echarts from 'echarts';
 
+// 筛选条件
+const dateRange = ref([]);
+const wellNumber = ref('');
+const projectDept = ref('');
+const projectGroup = ref('');
+const block = ref('');
+const teamNumber = ref('');
+const taskType = ref('');
+const wellCategory = ref('');
+const wellType = ref('');
+
 // ---------- 单井基础数据模拟 ----------
 const wellBaseData = [
   {
     序号: '1',
-    建设性质: '新井-1',
-    井型: '一类',
-    白水井型: '常规',
-    领域分类: '一类',
-    施工队伍: '钻井作业1',
-    区块: '新中',
-    队号: 'JH001-070',
-    总开钻井深: '设计6000',
-    设计井深: '已完成',
-    当前施工月: '3月',
-    入井液类型: '79.3',
-    完钻周期: '79.3',
-    最终得分: '77.34',
+    井号: 'S001-1',
+    项目部: '项目部1',
+    项目组: '项目组1',
+    区块: '区块1',
+    队号: '队号1',
+    任务类型: '任务类型1',
+    井别: '井别1',
+    井型: '井型1',
+    完钻日期: '2021-01-01',
+    完钻周期: '100',
+    过程评分: '85',
+    结果评分: '88',
+    封固合格率: '90',
+    '不合格红线（总条数）': '10',
   },
   {
     序号: '2',
-    建设性质: '新井-2',
-    井型: '一类',
-    白水井型: '常规',
-    领域分类: '一类',
-    施工队伍: '钻井作业2',
-    区块: '兴垦',
-    队号: 'JH001-099',
-    总开钻井深: '完钻7300',
-    设计井深: '特殊井',
-    当前施工月: '2月',
-    入井液类型: '79.3',
-    完钻周期: '79.3',
-    最终得分: '79.34',
+    井号: 'S001-2',
+    项目部: '项目部2',
+    项目组: '项目组2',
+    区块: '区块2',
+    队号: '队号2',
+    任务类型: '任务类型2',
+    井别: '井别2',
+    井型: '井型2',
+    完钻日期: '2021-01-02',
+    完钻周期: '101',
+    过程评分: '86',
+    结果评分: '89',
+    封固合格率: '91',
+    '不合格红线（总条数）': '11',
   },
   {
     序号: '3',
-    建设性质: '新井-3',
-    井型: '一类',
-    白水井型: '防斜',
-    领域分类: '一类',
-    施工队伍: '钻井作业3',
-    区块: '新中',
-    队号: 'JH001-070',
-    总开钻井深: '设计6000',
-    设计井深: '已完成',
-    当前施工月: '3月',
-    入井液类型: '79.3',
-    完钻周期: '79.3',
-    最终得分: '79.34',
+    井号: 'S001-3',
+    项目部: '项目部3',
+    项目组: '项目组3',
+    区块: '区块3',
+    队号: '队号3',
+    任务类型: '任务类型3',
+    井别: '井别3',
+    井型: '井型3',
+    完钻日期: '2021-01-03',
+    完钻周期: '102',
+    过程评分: '87',
+    结果评分: '90',
+    封固合格率: '92',
+    '不合格红线（总条数）': '12',
   },
   {
     序号: '4',
-    建设性质: '新井-4',
-    井型: '一类',
-    白水井型: '防漏',
-    领域分类: '一类',
-    施工队伍: '钻井作业4',
-    区块: '兴垦',
-    队号: 'JH001-099',
-    总开钻井深: '完钻7300',
-    设计井深: '特殊井',
-    当前施工月: '2月',
-    入井液类型: '79.3',
-    完钻周期: '79.3',
-    最终得分: '66.34',
+    井号: 'S001-4',
+    项目部: '项目部4',
+    项目组: '项目组4',
+    区块: '区块4',
+    队号: '队号4',
+    任务类型: '任务类型4',
+    井别: '井别4',
+    井型: '井型4',
+    完钻日期: '2021-01-04',
+    完钻周期: '103',
+    过程评分: '88',
+    结果评分: '91',
+    封固合格率: '93',
+    '不合格红线（总条数）': '13',
+  },
+  {
+    序号: '5',
+    井号: 'S001-5',
+    项目部: '项目部5',
+    项目组: '项目组5',
+    区块: '区块5',
+    队号: '队号5',
+    任务类型: '任务类型5',
+    井别: '井别5',
+    井型: '井型5',
+    完钻日期: '2021-01-05',
+    完钻周期: '104',
+    过程评分: '89',
+    结果评分: '92',
+    封固合格率: '94',
+    '不合格红线（总条数）': '14',
+  },
+  {
+    序号: '6',
+    井号: 'S001-6',
+    项目部: '项目部6',
+    项目组: '项目组6',
+    区块: '区块6',
+    队号: '队号6',
+    任务类型: '任务类型6',
+    井别: '井别6',
+    井型: '井型6',
+    完钻日期: '2021-01-06',
+    完钻周期: '105',
+    过程评分: '90',
+    结果评分: '93',
+    封固合格率: '95',
+    '不合格红线（总条数）': '15',
   },
 ];
 
