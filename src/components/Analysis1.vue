@@ -132,11 +132,12 @@
       <el-dialog v-model="showWeightDialog" title="过程评分校核" width="90%">
         <div style="display: flex; gap: 20px; height: 60vh;">
           <div style="width: 50%; height: 100%; display: flex; align-items: center; justify-content: center;">
-            <el-table :data="weightData" border>
-              <el-table-column prop="controlItem" label="控制项" />
-              <el-table-column prop="weight" label="权重" />
-              <el-table-column prop="weight" label="权重" />
-              <el-table-column prop="weight" label="权重" />
+
+            <el-table :data="tableData" style="width: 100%;height: 100%;" row-key="id" border lazy :load="load"
+              :tree-props="{ children: 'children', hasChildren: 'hasChildren' }">
+              <el-table-column prop="name" label="控制项" />
+              <el-table-column prop="value1" label="一级权重" />
+              <el-table-column prop="value2" label="二级权重" />
             </el-table>
           </div>
           <div ref="weightChartRef" class="chart-container" style="width: 50%; height: 100%;"></div>
@@ -151,11 +152,17 @@
 
       <!-- 结果评分详情弹窗 -->
       <el-dialog v-model="showResultAnalysisDialog" title="结果评分详情" width="90%">
-        <div style="display: flex; gap: 20px; height: 700px;">
+        <div style="display: flex; gap: 20px; height: 800px;">
           <!-- 质量分析模型准确率柱状图 -->
           <div ref="accuracyChartRef" class="chart-container" style="width: 50%; height: 100%;"></div>
+          <!-- 单井分析图 -->
+          <div ref="singleWellAnalysisChartRef" class="chart-container" style="width: 50%; height: 100%;"></div>
           <!-- 关键特征控制因素权重比饼图 -->
           <div ref="keyFeatureControlFactorWeightPieChartRef" class="chart-container" style="width: 50%; height: 100%;">
+          </div>
+          <!-- 特征值对固井质量影响程度分析图 -->
+          <div ref="featureValueAnalysisChartRef" class="chart-container" v-show="false"
+            style="width: 50%; height: 100%;">
           </div>
         </div>
         <template #footer>
@@ -198,6 +205,8 @@ import { graphCalc } from "../mock/graph-calc";
 import { mockModelData } from "../mock/mock-model-data";
 import { mockProcessData } from "../mock/mock-process-data";
 import { fieldMapping } from "../mock/processFieldMap";
+import { colorByNumber } from "../utils/utils-manage";
+import { mockSingleData } from "../mock/mock-single-data";
 
 // 筛选条件
 const dateRange = ref([]);
@@ -209,63 +218,276 @@ const currentPage = ref(1);
 const pageSize = ref(10);
 
 // 表格数据
+// < !--
+//   打分表 - 主表
+// 项目 - 入井流体实验	0.1830
+// 项目 - 井眼条件	0.1890
+// 项目 - 下套管作业	0.0840
+// 项目 - 固井施工	0.3410
+// 项目 - 水泥浆返高	0.2030
+
+// 打分表 - 入井流体实验
+// 项目 - 水泥浆稠化时间	0.4110
+// 项目 - 初始稠度	0.1360
+// 项目 - 水泥石抗压强度(24h)	0.3490
+// 项目 - 水泥浆静置后上下密度差	0.1040
+
+// 打分表 - 井眼条件
+// 项目 - 环空上返速度	0.1210
+// 项目 - 钻井液循环周次	0.0840
+// 项目 - 进出口密度差	0.0930
+// 项目 - 上窜速度	0.041
+// 项目 - 固井前钻井液塑性粘度	0.1480
+// 项目 - 钻头 - 套管尺寸（环空间隙）	0.1350
+// 项目 - 井径扩大率	0.378
+
+// 打分表 - 下套管作业
+// 项目 - 套管居中度	0.541
+// 项目 - 人工井底距油层底界	0.264
+// 项目 - 油井阻流环与浮鞋间距	0.195
+
+// 打分表 - 固井施工
+// 项目 - 前置液体积量占裸眼环空高度	0.0581
+// 项目 - 前置液紊流接触时间	0.0745
+// 项目 - 浆柱密度差	0.0431
+// 项目 - 隔离液在循环温度下，动塑比	0.0325
+// 项目 - 隔离液滤失量	0.024
+// 项目 - 水泥浆密度记录偏差	0.0479
+// 项目 - 测量记录间隔	0.0311
+// 项目 - 中停时间	0.0795
+// 项目 - 施工参数（排量、压力、水泥浆密度、注入量等）记录	0.0341
+// 项目 - 胶塞入井	0.0727
+// 项目 - 替量符合固井施工设计要求	0.103
+// 项目 - 顶替过程连续	0.0705
+// 项目 - 压力有监控记录	0.0205
+// 项目 - 排量有监控记录	0.0235
+// 项目 - 井口返出情况有监控记录	0.0282
+// 项目 - 碰压	0.063
+// 项目 - 无碰压现象，顶替量－设计顶替量	0.0691
+// 项目 - 小排量碰压，碰压附加值	0.033
+// 项目 - 下胶塞清水静压穿透压力	0.0161
+
+// 打分表 - 水泥浆返高
+// 项目 - 表层套管	0.144
+// 项目 - 技术套管	0.281
+// 项目 - 生产套管	0.575
+// -->
 const tableData = ref([
   {
-    serial: 1,
-    projectDept: "第一项目部",
-    wellType: "全部",
-    wellCategory: "全部",
-    projectGroup: "全部",
-    wellCount: 1,
-    processScore: 34,
-    resultScore: 3,
-    unqualifiedLines: 8,
+    id: "1",
+    name: '入井流体实验',
+    value1: 0.183,
+    children: [
+      {
+        id: "1.1",
+        name: '水泥浆稠化时间',
+        value2: 0.411,
+      },
+      {
+        id: "1.2",
+        name: '初始稠度',
+        value2: 0.136,
+      },
+      {
+        id: "1.3",
+        name: '水泥石抗压强度(24h)',
+        value2: 0.349,
+      },
+      {
+        id: "1.4",
+        name: '水泥浆静置后上下密度差',
+        value2: 0.104,
+      }
+    ]
   },
   {
-    serial: 2,
-    projectDept: "第二项目部",
-    wellType: "全部",
-    wellCategory: "全部",
-    projectGroup: "全部",
-    wellCount: 2,
-    processScore: 17,
-    resultScore: 62,
-    unqualifiedLines: 90,
+    id: "2",
+    name: '井眼条件',
+    value1: 0.189,
+    children: [
+      {
+        id: "2.1",
+        name: '环空上返速度',
+        value2: 0.121,
+      },
+      {
+        id: "2.2",
+        name: '钻井液循环周次',
+        value2: 0.084,
+      },
+      {
+        id: "2.3",
+        name: '进出口密度差',
+        value2: 0.093,
+      },
+      {
+        id: "2.4",
+        name: '上窜速度',
+        value2: 0.041,
+      },
+      {
+        id: "2.5",
+        name: '固井前钻井液塑性粘度',
+        value2: 0.148,
+      },
+      {
+        id: "2.6",
+        name: '钻头-套管尺寸（环空间隙）',
+        value2: 0.135,
+      },
+      {
+        id: "2.7",
+        name: '井径扩大率',
+        value2: 0.378,
+      }
+    ]
   },
   {
-    serial: 3,
-    projectDept: "第三项目部",
-    wellType: "全部",
-    wellCategory: "全部",
-    projectGroup: "全部",
-    wellCount: 3,
-    processScore: 45,
-    resultScore: 17,
-    unqualifiedLines: 95,
+    id: "3",
+    name: '下套管作业',
+    value1: 0.084,
+    children: [
+      {
+        id: "3.1",
+        name: '套管居中度',
+        value2: 0.541,
+      },
+      {
+        id: "3.2",
+        name: '人工井底距油层底界',
+        value2: 0.264,
+      },
+      {
+        id: "3.3",
+        name: '油井阻流环与浮鞋间距',
+        value2: 0.195,
+      }
+    ]
   },
   {
-    serial: 4,
-    projectDept: "第四项目部",
-    wellType: "全部",
-    wellCategory: "全部",
-    projectGroup: "全部",
-    wellCount: 4,
-    processScore: 66,
-    resultScore: 56,
-    unqualifiedLines: 57,
+    id: "4",
+    name: '固井施工',
+    value1: 0.341,
+    children: [
+      {
+        id: "4.1",
+        name: '前置液体积量占裸眼环空高度',
+        value2: 0.0581,
+      },
+      {
+        id: "4.2",
+        name: '前置液紊流接触时间',
+        value2: 0.0745,
+      },
+      {
+        id: "4.3",
+        name: '浆柱密度差',
+        value2: 0.0431,
+      },
+      {
+        id: "4.4",
+        name: '隔离液在循环温度下动塑比',
+        value2: 0.0325,
+      },
+      {
+        id: "4.5",
+        name: '隔离液滤失量',
+        value2: 0.024,
+      },
+      {
+        id: "4.6",
+        name: '水泥浆密度记录偏差',
+        value2: 0.0479,
+      },
+      {
+        id: "4.7",
+        name: '测量记录间隔',
+        value2: 0.0311,
+      },
+      {
+        id: "4.8",
+        name: '中停时间',
+        value2: 0.0795,
+      },
+      {
+        id: "4.9",
+        name: '施工参数（排量、压力、水泥浆密度、注入量等）记录',
+        value2: 0.0341,
+      },
+      {
+        id: "4.10",
+        name: '胶塞入井',
+        value2: 0.0727,
+      },
+      {
+        id: "4.11",
+        name: '替量符合固井施工设计要求',
+        value2: 0.103,
+      },
+      {
+        id: "4.12",
+        name: '顶替过程连续',
+        value2: 0.0705,
+      },
+      {
+        id: "4.13",
+        name: '压力有监控记录',
+        value2: 0.0205,
+      },
+      {
+        id: "4.14",
+        name: '排量有监控记录',
+        value2: 0.0235,
+      },
+      {
+        id: "4.15",
+        name: '井口返出情况有监控记录',
+        value2: 0.0282,
+      },
+      {
+        id: "4.16",
+        name: '碰压',
+        value2: 0.063,
+      },
+      {
+        id: "4.17",
+        name: '无碰压现象，顶替量－设计顶替量',
+        value2: 0.0691,
+      },
+      {
+        id: "4.18",
+        name: '小排量碰压，碰压附加值',
+        value2: 0.033,
+      },
+      {
+        id: "4.19",
+        name: '下胶塞清水静压穿透压力',
+        value2: 0.0161,
+      }
+    ]
   },
   {
-    serial: 5,
-    projectDept: "苏里格项目部",
-    wellType: "全部",
-    wellCategory: "全部",
-    projectGroup: "全部",
-    wellCount: 5,
-    processScore: 33,
-    resultScore: 35,
-    unqualifiedLines: 73,
-  },
-
+    id: "5",
+    name: '水泥浆返高',
+    value1: 0.203,
+    children: [
+      {
+        id: "5.1",
+        name: '表层套管',
+        value2: 0.144,
+      },
+      {
+        id: "5.2",
+        name: '技术套管',
+        value2: 0.281,
+      },
+      {
+        id: "5.3",
+        name: '生产套管',
+        value2: 0.575,
+      }
+    ]
+  }
 ]);
 
 // 图表容器引用
@@ -766,11 +988,15 @@ const handleCloseWeightDialog = () => {
 const showResultAnalysisDialog = ref(false);
 const accuracyChartRef = ref(null);
 const keyFeatureControlFactorWeightPieChartRef = ref(null);
+const featureValueAnalysisChartRef = ref(null);
+const singleWellAnalysisChartRef = ref(null);
 const handleResultAnalysisDialog = () => {
   showResultAnalysisDialog.value = true;
   nextTick(() => {
     initAccuracyChart();
     initKeyFeatureControlFactorWeightPieChart();
+    initFeatureValueAnalysisChart();
+    initSingleWellAnalysisChart();
   });
 };
 const initAccuracyChart = () => {
@@ -947,6 +1173,440 @@ const initKeyFeatureControlFactorWeightPieChart = () => {
   })
 
   keyFeatureControlFactorWeightPieChart.setOption(chartOption.value);
+};
+const initFeatureValueAnalysisChart = () => {
+  let maxAbs = 0
+  const maxMinEachLine = {}
+  // 关键特征控制因素权重比
+  Object.entries(mockProcessData.result.processed_feature).forEach(it => {
+    // 特征值对固井质量影响程度，这里组装一下每一个特征值的极值
+    mockModelData.result.shap_json_test.forEach(itm => {
+      const itmv = itm.shap_values[it[0]]
+      if (maxAbs < Math.ceil(Math.abs(itmv))) {
+        maxAbs = Math.ceil(Math.abs(itmv))
+      }
+
+      maxMinEachLine[it[0]] = {
+        max: 0,
+        min: 0
+      }
+      if (maxMinEachLine[it[0]].max < itmv) {
+        maxMinEachLine[it[0]].max = itmv
+      }
+
+      if (maxMinEachLine[it[0]].min > itmv) {
+        maxMinEachLine[it[0]].min > itmv
+      }
+    })
+  })
+  const featureValueAnalysisChart = echarts.init(featureValueAnalysisChartRef.value);
+  // 过滤特征要素
+  const filterFieldMapping = {}
+  Object.entries(fieldMapping).forEach(it => {
+    Object.keys(mockProcessData.result.processed_feature).forEach(k => {
+      if (it[0] === k) {
+        filterFieldMapping[k] = it[1]
+      }
+    })
+  })
+  // 特征值对固井质量影响程度
+  const modelShapJsonTestData = []
+  mockModelData.result.shap_json_test.forEach(it => {
+    Object.keys(it.shap_values).forEach(k => {
+      modelShapJsonTestData.push({
+        name: filterFieldMapping[k],
+        value: [it.shap_values[k], filterFieldMapping[k]],
+        itemStyle: {
+          color: colorByNumber(it.shap_values[k], maxMinEachLine[k].min, maxMinEachLine[k].max)
+        }
+      })
+    })
+  })
+  featureValueAnalysisChart.setOption({
+    title: {
+      text: '特征值对固井质量影响程度/单井智能预测得分'
+    },
+    color: ['#3B82F6', '#10B981'],
+    tooltip: { trigger: 'item' },
+    legend: {
+      top: 0,
+      right: '6%'
+    },
+    grid: {
+      left: '3%',
+      right: '7%',
+      bottom: '3%',
+      top: '5%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'value',
+      axisLine: {
+        show: true
+      },
+      axisTick: {
+        show: true
+      },
+      max: maxAbs,
+      min: -maxAbs
+    },
+    yAxis: {
+      type: 'category',
+      axisTick: {
+        show: false
+      },
+      axisLabel: {
+        interval: 0
+      },
+      data: Object.values(filterFieldMapping)
+    },
+    graphic: [
+      {
+        type: 'group',
+        right: 30,
+        top: 'center',
+        children: [
+          {
+            type: 'rect',
+            z: 100,
+            left: 'center',
+            top: 'middle',
+            shape: {
+              width: 10,
+              height: 550,
+              r: [10]
+            },
+            style: {
+              fill: {
+                type: 'linear',
+                x: 0,
+                y: 1,
+                x2: 0,
+                y2: 0,
+                colorStops: [
+                  { offset: 0, color: 'blue' },
+                  { offset: 1, color: 'red' }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        type: 'group',
+        right: 0,
+        top: 0,
+        children: [
+          {
+            type: 'text',
+            z: 100,
+            style: {
+              fill: '#333',
+              overflow: 'break',
+              text: 'High',
+              font: '14px Microsoft YaHei',
+              fontWeight: 'bolder'
+            }
+          }
+        ]
+      },
+      {
+        type: 'group',
+        right: 0,
+        bottom: 0,
+        children: [
+          {
+            type: 'text',
+            z: 100,
+            style: {
+              fill: '#333',
+              overflow: 'break',
+              text: 'Low',
+              font: '14px Microsoft YaHei',
+              fontWeight: 'bolder'
+            }
+          }
+        ]
+      },
+      {
+        type: 'group',
+        right: 0,
+        bottom: 'center',
+        rotation: -23.55,
+        children: [
+          {
+            type: 'text',
+            z: 100,
+            style: {
+              fill: '#333',
+              overflow: 'break',
+              text: 'Feature Value',
+              font: '14px Microsoft YaHei'
+            }
+          }
+        ]
+      },
+      {
+        type: 'group',
+        right: 240,
+        bottom: 0,
+        children: [
+          {
+            type: 'text',
+            z: 100,
+            style: {
+              fill: '#333',
+              overflow: 'break',
+              text: 'SHAP Value(impact on model output)',
+              font: '14px Microsoft YaHei'
+            }
+          }
+        ]
+      }
+    ],
+    series: [
+      {
+        type: 'scatter',
+        symbolSize: 5,
+        data: modelShapJsonTestData
+      }
+    ]
+  });
+};
+const initSingleWellAnalysisChart = () => {
+  // 过滤特征要素
+  const filterFieldMapping = {}
+  Object.entries(fieldMapping).forEach(it => {
+    Object.keys(mockProcessData.result.processed_feature).forEach(k => {
+      if (it[0] === k) {
+        filterFieldMapping[k] = it[1]
+      }
+    })
+  })
+  // 单井特征值影响分析
+  const echartsRef4ForData = []
+  const narrowWidth = 0.015
+  let startPoint = narrowWidth // 累加值
+  const singleShapValues = mockSingleData.sample_1.shap_values
+  const singleEfx = mockSingleData.sample_1.E_fx
+  for (const key in singleShapValues) {
+    if (Object.prototype.hasOwnProperty.call(singleShapValues, key)) {
+      const v = singleShapValues[key]
+      echartsRef4ForData.push({
+        label: key,
+        value: v
+      })
+    }
+  }
+  const maxVal = echartsRef4ForData.reduce((pre, cur) => cur.value + pre, 0)
+
+  const singleWellAnalysisChart = echarts.init(singleWellAnalysisChartRef.value);
+  singleWellAnalysisChart.setOption({
+    title: {
+      text: '单井特征值影响分析'
+    },
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'shadow'
+      },
+      formatter(itm) {
+        if (itm.find(it => it.value !== '-').value !== '-') {
+          return itm.find(it => it.value !== '-').axisValue + ': ' + itm.find(it => it.value !== '-').value
+        }
+      }
+    },
+    grid: {
+      left: '3%',
+      right: '10%',
+      bottom: '3%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'value',
+      // 显示 singleEfx 作为基准线（原0点位置现在显示 singleEfx）
+      axisLabel: {
+        formatter: function (value) {
+          // 显示原始值而非差值
+          if (value + singleEfx === singleEfx) {
+            return `E[f(x)] = ${Number(value + singleEfx).toFixed(2)}`
+          } else {
+            return Number(value + singleEfx).toFixed(2)
+          }
+        }
+      },
+      // 突出显示 singleEfx 基准线（原0刻度线）
+      splitLine: {
+        lineStyle: {
+          color: function (params) {
+            return params.value === 0 ? 'red' : '#eee' // 0位置对应实际50
+          },
+          width: function (params) {
+            return params.value === 0 ? 2 : 1
+          }
+        }
+      },
+      min: -maxVal,
+      max: maxVal
+    },
+    yAxis: {
+      type: 'category',
+      axisTick: {
+        show: false
+      },
+      axisLabel: {
+        interval: 0
+      },
+      axisLine: {
+        lineStyle: {
+          type: 'dashed'
+        }
+      },
+      data: echartsRef4ForData.map(it => filterFieldMapping[it.label])
+    },
+    graphic: [
+      {
+        type: 'group',
+        right: 0,
+        top: 0,
+        children: [
+          {
+            type: 'text',
+            right: 0,
+            top: 'middle', // 相对父元素居中
+            style: {
+              text: '预测结果：' + mockSingleData.sample_1.predicted_class,
+              fill: '#FF0d10',
+              fontSize: 14,
+              textAlign: 'center'
+            }
+          },
+          {
+            type: 'text',
+            right: 0,
+            bottom: -30,
+            style: {
+              text: '实际结果：' + mockSingleData.sample_1.true_class,
+              fill: '#188df0',
+              fontSize: 14,
+              textAlign: 'center'
+            }
+          },
+          {
+            type: 'text',
+            right: 0,
+            top: -30,
+            style: {
+              text: '预测为合格的概率：' + Number(mockSingleData.sample_1.fx * 100).toFixed(2) + '%',
+              fontSize: 14,
+              textAlign: 'center'
+            }
+          }
+        ]
+      }
+    ],
+    series: echartsRef4ForData.map((it, idx, arr) => {
+      return {
+        type: 'custom',
+        data: new Array(arr.length).fill('-').map((_, itDataIdx) => {
+          if (idx === itDataIdx) {
+            return it.value
+          } else {
+            return _
+          }
+        }),
+        renderItem: function (params, api) {
+          // 1. 获取当前数据值-x轴值，需要减去上一个元素的值
+          const value = api.value(0)
+          // 2. 获取当前类目在y轴中的位置-y轴坐标
+          const y = api.coord([0, api.value(1)])[1] // api.value(1)是当前索引
+          // 3. 图形高度（每个类目的高度）
+          const height = 20
+          // 4. 定义多边形顶点（基于数据值和坐标系转换）
+          if (idx > 0) {
+            if (!isNaN(value)) {
+              if (arr[idx - 1].value !== 0) {
+                startPoint += (arr[idx - 1].value + narrowWidth)
+              }
+            }
+          }
+          const points = [
+            [api.coord([value === 0 ? startPoint : startPoint, api.value(1)])[0], y - height / 2], // 起点
+            [
+              api.coord(
+                [
+                  value === 0 ? startPoint : value > 0 ? startPoint + value - narrowWidth : startPoint + value + narrowWidth,
+                  api.value(1)
+                ]
+              )[0],
+              y - height / 2
+            ], // 上右
+            [
+              api.coord(
+                [
+                  startPoint + value,
+                  api.value(1)
+                ]
+              )[0],
+              y
+            ], // 右上顶点
+            [
+              api.coord(
+                [
+                  value === 0 ? startPoint : value > 0 ? startPoint + value - narrowWidth : startPoint + value + narrowWidth,
+                  api.value(1)
+                ]
+              )[0],
+              y + height / 2
+            ], // 下右
+            [api.coord([value === 0 ? startPoint : startPoint, api.value(1)])[0], y + height / 2] // 左下
+          ]
+
+          // 5. 返回多边形图形
+          return {
+            type: 'polygon',
+            shape: {
+              points // 多边形顶点数组
+            },
+            style: {
+              fill: api.value(0) > 0 ? '#FF0d10' : '#188df0',
+              lineWidth: 0
+            },
+            textContent: {
+              style: {
+                // 文本内容，可以使用富文本，这里简单显示一个值
+                text: isNaN(value) ? '' : value > 0 ? `+${value}` : value,
+                fill: value > 0 ? '#FF0d10' : '#188df0',
+                fontSize: 14,
+                fontWeight: 'bolder',
+                textAlign: 'center'
+              }
+            },
+            // 文本的布局配置 (textConfig)
+            textConfig: {
+              position: 'right',
+              // 偏移量 [横向, 纵向]，单位是像素（px）
+              offset: [0, 0],
+              autoRotate: false
+            },
+            // 文本的层级，确保文本显示在图形上方
+            z2: 100,
+            // 6. 定义鼠标hover的交互区域
+            emphasis: {
+              style: {
+                fill: api.value(0) > 0 ? '#FF0d1099' : '#188df099'
+              }
+            }
+          }
+        },
+        // 7. 声明数据维度（x轴为数值，y轴为索引）
+        encode: {
+          x: 0, // 第0维度对应x轴
+          y: 1 // 第1维度对应y轴（自动使用数据索引）
+        }
+      }
+    })
+  });
 };
 
 const handleCloseResultAnalysisDialog = () => {
