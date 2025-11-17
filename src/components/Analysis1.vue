@@ -77,8 +77,8 @@
       </el-form>
 
       <!-- 数据表格 -->
-      <el-table :data="tableData" border class="data-table">
-        <el-table-column prop="serial" label="序号" width="80" align="center" />
+      <el-table :data="tableDataDetail" border class="data-table">
+        <el-table-column type="index" :index="index"  label="序号" width="80" align="center" />
         <el-table-column prop="projectDept" label="项目部" align="center" />
         <el-table-column prop="projectGroup" label="项目组" align="center">
           <template #default="{ row }">
@@ -133,12 +133,42 @@
         <div style="display: flex; gap: 20px; height: 60vh;">
           <div style="width: 50%; height: 100%; display: flex; align-items: center; justify-content: center;">
 
-            <el-table :data="tableData" style="width: 100%;height: 100%;" row-key="id" border lazy :load="load"
-              :tree-props="{ children: 'children', hasChildren: 'hasChildren' }">
-              <el-table-column prop="name" label="控制项" />
-              <el-table-column prop="value1" label="一级权重" />
-              <el-table-column prop="value2" label="二级权重" />
+            <!-- 表格样式美化一下，要区分一级权重和二级权重，并且默认展开所有一级权重 -->
+            <el-table 
+              :data="tableData" 
+              style="width: 100%;height: 100%;" 
+              row-key="id" 
+              border 
+              default-expand-all
+              :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
+              :row-class-name="getRowClassName"
+              class="weight-table">
+              <el-table-column prop="name" label="控制项" min-width="200">
+                <template #default="{ row }">
+                  <span :class="row.value1 ? 'level-one-name' : 'level-two-name'">
+                    {{ row.name }}
+                  </span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="value1" label="一级权重" width="150" align="center">
+                <template #default="{ row }">
+                  <span v-if="row.value1" class="weight-value level-one-weight">
+                    {{ formatWeight(row.value1) }}
+                  </span>
+                  <span v-else class="weight-placeholder">-</span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="value2" label="二级权重" width="150" align="center">
+                <template #default="{ row }">
+                  <span v-if="row.value2" class="weight-value level-two-weight">
+                    {{ formatWeight(row.value2) }}
+                  </span>
+                  <span v-else class="weight-placeholder">-</span>
+                </template>
+              </el-table-column>
             </el-table>
+
+
           </div>
           <div ref="weightChartRef" class="chart-container" style="width: 50%; height: 100%;"></div>
         </div>
@@ -152,18 +182,21 @@
 
       <!-- 结果评分详情弹窗 -->
       <el-dialog v-model="showResultAnalysisDialog" title="结果评分详情" width="90%">
-        <div style="display: flex; gap: 20px; height: 800px;">
-          <!-- 质量分析模型准确率柱状图 -->
-          <div ref="accuracyChartRef" class="chart-container" style="width: 50%; height: 100%;"></div>
-          <!-- 单井分析图 -->
-          <div ref="singleWellAnalysisChartRef" class="chart-container" style="width: 50%; height: 100%;"></div>
-          <!-- 关键特征控制因素权重比饼图 -->
-          <div ref="keyFeatureControlFactorWeightPieChartRef" class="chart-container" style="width: 50%; height: 100%;">
+        <div style="height: 800px;">
+          <div style="width: 100%; height: 50%; display: flex;">
+            <!-- 质量分析模型准确率柱状图 -->
+            <div ref="accuracyChartRef" class="chart-container" style="width: 100%; height: 100%;"></div>
           </div>
-          <!-- 特征值对固井质量影响程度分析图 -->
-          <div ref="featureValueAnalysisChartRef" class="chart-container" v-show="false"
-            style="width: 50%; height: 100%;">
+          <div style="width: 100%; height: 50%; display: flex; gap: 20px;">
+            <!-- 质量关键要素评分图 -->
+            <div ref="projectOverallAnalysisChartRef" class="chart-container" style="width: 50%; height: 100%;">
+            </div>
+            <!-- 关键特征控制因素权重比饼图 -->
+            <div ref="keyFeatureControlFactorWeightPieChartRef" class="chart-container"
+              style="width: 50%; height: 100%;">
+            </div>
           </div>
+          
         </div>
         <template #footer>
           <span class="dialog-footer">
@@ -215,63 +248,112 @@ const wellCategory = ref("");
 
 // 分页参数
 const currentPage = ref(1);
-const pageSize = ref(10);
+const pageSize = ref(10); 
 
 // 表格数据
-// < !--
-//   打分表 - 主表
-// 项目 - 入井流体实验	0.1830
-// 项目 - 井眼条件	0.1890
-// 项目 - 下套管作业	0.0840
-// 项目 - 固井施工	0.3410
-// 项目 - 水泥浆返高	0.2030
+/**
+ * <el-table-column prop="serial" label="序号" width="80" align="center" />
+        <el-table-column prop="projectDept" label="项目部" align="center" />
+        <el-table-column prop="projectGroup" label="项目组" align="center">
+          <template #default="{ row }">
+            <!-- 下拉框：一组、二组、三组 -->
+            <el-select v-model="row.projectGroup" placeholder="请选择项目组">
+              <el-option label="全部" value="全部" />
+              <el-option label="一组" value="一组" />
+              <el-option label="二组" value="二组" />
+              <el-option label="三组" value="三组" />
+            </el-select>
+          </template>
+        </el-table-column>
+        <el-table-column prop="wellType" label="井型" align="center">
+          <template #default="{ row }">
+            <!-- 下拉框：定向井、直井、斜井 -->
+            <el-select v-model="row.wellType" placeholder="请选择井型">
+              <el-option label="全部" value="全部" />
+              <el-option label="定向井" value="定向井" />
+              <el-option label="直井" value="直井" />
+              <el-option label="斜井" value="斜井" />
+            </el-select>
+          </template>
+        </el-table-column>
+        <el-table-column prop="wellCategory" label="井别" align="center">
+          <template #default="{ row }">
+            <!-- 下拉框：油井、气井、ccus井 -->
+            <el-select v-model="row.wellCategory" placeholder="请选择井别">
+              <el-option label="全部" value="全部" />
+              <el-option label="油井" value="油井" />
+              <el-option label="气井" value="气井" />
+              <el-option label="ccus井" value="ccus井" />
+            </el-select>
+          </template>
+        </el-table-column>
+        <el-table-column prop="wellCount" label="井数(口)" align="center" />
+        <el-table-column prop="processScore" label="过程综合评分（平均）" align="center" />
+        <el-table-column prop="resultScore" label="结果综合评分（平均）" align="center" />
+        <el-table-column prop="unqualifiedLines" label="不合格红线（总条数）" align="center" />
+ */
+/**
+ * 固井质量详情表格数据
+ * @type {Array<Object>}
+ */
+const tableDataDetail = ref([
+  {
+    serial: 1,
+    projectDept: '一部',
+    projectGroup: '一组',
+    wellType: '定向井',
+    wellCategory: '油井',
+    wellCount: 82,
+    processScore: 85.6,
+    resultScore: 88.2,
+    unqualifiedLines: 6
+  },
+  {
+    serial: 3,
+    projectDept: '二部',
+    projectGroup: '一组',
+    wellType: '定向井',
+    wellCategory: '油井',
+    wellCount: 325,
+    processScore: 90.5,
+    resultScore: 92.8,
+    unqualifiedLines: 5
+  },
+  {
+    serial: 5,
+    projectDept: '三部',
+    projectGroup: '一组',
+    wellType: '定向井',
+    wellCategory: '油井',
+    wellCount: 528,
+    processScore: 91.2,
+    resultScore: 93.5,
+    unqualifiedLines: 8
+  },
+  {
+    serial: 7,
+    projectDept: '四部',
+    projectGroup: '一组',
+    wellType: '定向井',
+    wellCategory: '油井',
+    wellCount: 107,
+    processScore: 88.7,
+    resultScore: 90.3,
+    unqualifiedLines: 7
+  },
+  {
+    serial: 10,
+    projectDept: '苏里格',
+    projectGroup: '三组',
+    wellType: '直井',
+    wellCategory: '油井',
+    wellCount: 142,
+    processScore: 84.1,
+    resultScore: 86.6,
+    unqualifiedLines: 5
+  }
+]);
 
-// 打分表 - 入井流体实验
-// 项目 - 水泥浆稠化时间	0.4110
-// 项目 - 初始稠度	0.1360
-// 项目 - 水泥石抗压强度(24h)	0.3490
-// 项目 - 水泥浆静置后上下密度差	0.1040
-
-// 打分表 - 井眼条件
-// 项目 - 环空上返速度	0.1210
-// 项目 - 钻井液循环周次	0.0840
-// 项目 - 进出口密度差	0.0930
-// 项目 - 上窜速度	0.041
-// 项目 - 固井前钻井液塑性粘度	0.1480
-// 项目 - 钻头 - 套管尺寸（环空间隙）	0.1350
-// 项目 - 井径扩大率	0.378
-
-// 打分表 - 下套管作业
-// 项目 - 套管居中度	0.541
-// 项目 - 人工井底距油层底界	0.264
-// 项目 - 油井阻流环与浮鞋间距	0.195
-
-// 打分表 - 固井施工
-// 项目 - 前置液体积量占裸眼环空高度	0.0581
-// 项目 - 前置液紊流接触时间	0.0745
-// 项目 - 浆柱密度差	0.0431
-// 项目 - 隔离液在循环温度下，动塑比	0.0325
-// 项目 - 隔离液滤失量	0.024
-// 项目 - 水泥浆密度记录偏差	0.0479
-// 项目 - 测量记录间隔	0.0311
-// 项目 - 中停时间	0.0795
-// 项目 - 施工参数（排量、压力、水泥浆密度、注入量等）记录	0.0341
-// 项目 - 胶塞入井	0.0727
-// 项目 - 替量符合固井施工设计要求	0.103
-// 项目 - 顶替过程连续	0.0705
-// 项目 - 压力有监控记录	0.0205
-// 项目 - 排量有监控记录	0.0235
-// 项目 - 井口返出情况有监控记录	0.0282
-// 项目 - 碰压	0.063
-// 项目 - 无碰压现象，顶替量－设计顶替量	0.0691
-// 项目 - 小排量碰压，碰压附加值	0.033
-// 项目 - 下胶塞清水静压穿透压力	0.0161
-
-// 打分表 - 水泥浆返高
-// 项目 - 表层套管	0.144
-// 项目 - 技术套管	0.281
-// 项目 - 生产套管	0.575
-// -->
 const tableData = ref([
   {
     id: "1",
@@ -795,7 +877,7 @@ const initCharts = () => {
     grid: { left: "3%", right: "4%", bottom: "3%", containLabel: true },
     xAxis: {
       type: "category",
-      data: ["区块A", "区块B", "区块C", "区块D", "区块E", "区块F", "区块G"],
+      data: ["一部", "二部", "三部", "四部", "苏里格"],
     },
     yAxis: { type: "value", name: "合格率(%)", max: 100 },
     series: [
@@ -828,7 +910,7 @@ const initCharts = () => {
     grid: { left: "3%", right: "4%", bottom: "3%", containLabel: true },
     xAxis: {
       type: "category",
-      data: ["区块A", "区块B", "区块C", "区块D", "区块E", "区块F", "区块G"],
+      data: ["一部", "二部", "三部", "四部", "苏里格"],
     },
     yAxis: { type: "value", name: "不合格井数" },
     series: [
@@ -841,29 +923,58 @@ const initCharts = () => {
     ],
   });
 
-  // 6. 不合格红线（总条数）分布图
+  // 6. 不合格红线（总条数）分布图（内圈+外圈关联关系）
   const controlItemQualificationChart = echarts.init(
     controlItemQualificationRef.value
   );
+  
+  // 内圈数据：不合格红线（总条数）
+  const innerData = [
+    { value: 82, name: "红线1", itemStyle: { color: "#409eff" } },
+    { value: 325, name: "红线2", itemStyle: { color: "#5dd5a5" } },
+    { value: 528, name: "红线3", itemStyle: { color: "#5c6f8d" } },
+    { value: 107, name: "红线4", itemStyle: { color: "#5adbf6" } },
+    { value: 210, name: "红线5", itemStyle: { color: "#faad14" } },
+  ];
+  
+  // 外圈数据：每个红线对应的关联关系（项目部分布）
+  const outerData = [
+    // 红线1对应的项目部分布
+    { value: 20, name: "一部-红线1", itemStyle: { color: "#409eff" } },
+    { value: 15, name: "二部-红线1", itemStyle: { color: "#5dd5a5" } },
+    { value: 25, name: "三部-红线1", itemStyle: { color: "#5c6f8d" } },
+    { value: 12, name: "四部-红线1", itemStyle: { color: "#5adbf6" } },
+    { value: 10, name: "苏里格-红线1", itemStyle: { color: "#faad14" } },
+  ];
+  
   controlItemQualificationChart.setOption({
     legend: {
-      top: "5%",
-      transform: "translateY(-50%)",
+      bottom: "center",
+      right: "0",
+      orient: 'vertical',
       show: true,
+      data: innerData.map(item => item.name),
+    },
+    tooltip: {
+      trigger: "item",
+      formatter: function(params) {
+        if (params.seriesName === "不合格红线（总条数）") {
+          return params.seriesName + " <br/>" + params.name + ": " + params.value + " (" + params.percent + "%)";
+        } else {
+          return params.seriesName + " <br/>" + params.name + ": " + params.value + " (" + params.percent + "%)";
+        }
+      },
     },
     series: [
+      // 内圈：不合格红线（总条数）
       {
         name: "不合格红线（总条数）",
         type: "pie",
-        tooltip: {
-          trigger: "item",
-          formatter: "{a} <br/>{b}: {c} ({d}%)",
-        },
         selectedMode: false,
         itemStyle: {
           borderRadius: 10,
           borderColor: "#fff",
-          borderWidth: 0,
+          borderWidth: 2,
         },
         label: {
           show: true,
@@ -885,7 +996,10 @@ const initCharts = () => {
             },
           },
         },
-        radius: ["55%", "70%"],
+        labelLine: {
+          show: false,
+        },
+        radius: ["60%", "80%"],
         center: ["50%", "50%"],
         emphasis: {
           scale: true,
@@ -893,16 +1007,49 @@ const initCharts = () => {
           itemStyle: {
             borderRadius: 10,
             borderColor: "rgba(159,159,159,0.4)",
-            borderWidth: 0,
+            borderWidth: 2,
           },
         },
-        data: [
-          { value: 82, name: "红线1", itemStyle: { color: "#409eff" } },
-          { value: 325, name: "红线2", itemStyle: { color: "#5dd5a5" } },
-          { value: 528, name: "红线3", itemStyle: { color: "#5c6f8d" } },
-          { value: 107, name: "红线4", itemStyle: { color: "#5adbf6" } },
-          { value: 210, name: "红线5", itemStyle: { color: "#faad14" } },
-        ],
+        data: innerData,
+      },
+      // 外圈：关联关系（项目部分布）
+      {
+        name: "红线关联关系",
+        type: "pie",
+        selectedMode: false,
+        itemStyle: {
+          borderRadius: 8,
+          borderColor: "#fff",
+          borderWidth: 1,
+        },
+        label: {
+          show: true,
+          position: "outside",
+          formatter: function(params) {
+            // 只显示项目部名称，不显示红线名称
+            const parts = params.name.split('-');
+            return parts[0];
+          },
+          fontSize: 12,
+          color: "#606266",
+        },
+        labelLine: {
+          show: true,
+          length: 15,
+          length2: 8,
+        },
+        radius: ["85%", "100%"],
+        center: ["50%", "50%"],
+        emphasis: {
+          scale: true,
+          scaleSize: 5,
+          itemStyle: {
+            borderRadius: 8,
+            borderColor: "rgba(159,159,159,0.4)",
+            borderWidth: 2,
+          },
+        },
+        data: outerData,
       },
     ],
   });
@@ -987,16 +1134,16 @@ const handleCloseWeightDialog = () => {
 // 结果评分详情弹窗相关
 const showResultAnalysisDialog = ref(false);
 const accuracyChartRef = ref(null);
+const projectOverallAnalysisChartRef = ref(null);
 const keyFeatureControlFactorWeightPieChartRef = ref(null);
-const featureValueAnalysisChartRef = ref(null);
-const singleWellAnalysisChartRef = ref(null);
+
 const handleResultAnalysisDialog = () => {
   showResultAnalysisDialog.value = true;
   nextTick(() => {
     initAccuracyChart();
+    initProjectOverallAnalysisChart();
     initKeyFeatureControlFactorWeightPieChart();
-    initFeatureValueAnalysisChart();
-    initSingleWellAnalysisChart();
+
   });
 };
 const initAccuracyChart = () => {
@@ -1096,6 +1243,121 @@ const initAccuracyChart = () => {
 
   accuracyChart.setOption(chartOption.value);
 };
+const initProjectOverallAnalysisChart = () => {
+  // 过滤特征要素
+  const filterFieldMapping = {}
+  Object.entries(fieldMapping).forEach(it => {
+    Object.keys(mockProcessData.result.processed_feature).forEach(k => {
+      if (it[0] === k) {
+        filterFieldMapping[k] = it[1]
+      }
+    })
+  })
+  // 单井特征值影响分析
+  const echartsRef4ForData = []
+  const narrowWidth = 0.015
+  let startPoint = narrowWidth // 累加值
+  const singleShapValues = mockSingleData.sample_1.shap_values
+  const singleEfx = mockSingleData.sample_1.E_fx
+  for (const key in singleShapValues) {
+    if (Object.prototype.hasOwnProperty.call(singleShapValues, key)) {
+      const v = singleShapValues[key]
+      echartsRef4ForData.push({
+        label: key,
+        value: v
+      })
+    }
+  }
+  const maxVal = echartsRef4ForData.reduce((pre, cur) => cur.value + pre, 0)
+
+  const projectOverallAnalysisChart = echarts.init(projectOverallAnalysisChartRef.value);
+  projectOverallAnalysisChart.setOption({
+    title: {
+      text: '质量关键要素评分'
+    },
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'shadow'
+      },
+      formatter(itm) {
+        if (itm.find(it => it.value !== '-').value !== '-') {
+          return itm.find(it => it.value !== '-').axisValue + ': ' + itm.find(it => it.value !== '-').value
+        }
+      }
+    },
+    grid: {
+      left: '3%',
+      right: '10%',
+      bottom: '3%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'value',
+      // 显示 singleEfx 作为基准线（原0点位置现在显示 singleEfx）
+      axisLabel: {
+        formatter: function (value) {
+          // 显示原始值而非差值
+          if (value + singleEfx === singleEfx) {
+            return `E[f(x)] = ${Number(value + singleEfx).toFixed(2)}`
+          } else {
+            return Number(value + singleEfx).toFixed(2)
+          }
+        }
+      },
+      // 突出显示 singleEfx 基准线（原0刻度线）
+      splitLine: {
+        lineStyle: {
+          color: function (params) {
+            return params.value === 0 ? 'red' : '#eee' // 0位置对应实际50
+          },
+          width: function (params) {
+            return params.value === 0 ? 2 : 1
+          }
+        }
+      },
+      min: -maxVal,
+      max: maxVal
+    },
+    yAxis: {
+      type: 'category',
+      axisTick: {
+        show: false
+      },
+      axisLabel: {
+        interval: 0
+      },
+      axisLine: {
+        lineStyle: {
+          type: 'dashed'
+        }
+      },
+      data: echartsRef4ForData.map(it => filterFieldMapping[it.label])
+    },
+    // echartsRef4ForData 的字段呈现为 柱状图，并且柱状图的宽度为 25，柱状图的间距为 80%
+    series: [
+      {
+        type: 'bar',
+        data: echartsRef4ForData.map(it => {
+          return {
+            value: it.value,
+            label: it.label,
+            barWidth: 25,
+            barGap: '80%',
+            color: '#3B82F6',
+            label: { show: true, position: it.value > 0 ? 'left' : 'right', color: it.value > 0 ? 'blue' : 'red', formatter: '{c}' },
+            textStyle: {
+              color: it.value > 0 ? 'blue' : 'red'
+            },
+            itemStyle: {
+              color: it.value > 0 ? 'blue' : 'red'
+            }
+          }
+        }),
+      }
+    ]
+  });
+};
 const initKeyFeatureControlFactorWeightPieChart = () => {
   const keyFeatureControlFactorWeightPieChart = echarts.init(keyFeatureControlFactorWeightPieChartRef.value);
 
@@ -1174,440 +1436,7 @@ const initKeyFeatureControlFactorWeightPieChart = () => {
 
   keyFeatureControlFactorWeightPieChart.setOption(chartOption.value);
 };
-const initFeatureValueAnalysisChart = () => {
-  let maxAbs = 0
-  const maxMinEachLine = {}
-  // 关键特征控制因素权重比
-  Object.entries(mockProcessData.result.processed_feature).forEach(it => {
-    // 特征值对固井质量影响程度，这里组装一下每一个特征值的极值
-    mockModelData.result.shap_json_test.forEach(itm => {
-      const itmv = itm.shap_values[it[0]]
-      if (maxAbs < Math.ceil(Math.abs(itmv))) {
-        maxAbs = Math.ceil(Math.abs(itmv))
-      }
 
-      maxMinEachLine[it[0]] = {
-        max: 0,
-        min: 0
-      }
-      if (maxMinEachLine[it[0]].max < itmv) {
-        maxMinEachLine[it[0]].max = itmv
-      }
-
-      if (maxMinEachLine[it[0]].min > itmv) {
-        maxMinEachLine[it[0]].min > itmv
-      }
-    })
-  })
-  const featureValueAnalysisChart = echarts.init(featureValueAnalysisChartRef.value);
-  // 过滤特征要素
-  const filterFieldMapping = {}
-  Object.entries(fieldMapping).forEach(it => {
-    Object.keys(mockProcessData.result.processed_feature).forEach(k => {
-      if (it[0] === k) {
-        filterFieldMapping[k] = it[1]
-      }
-    })
-  })
-  // 特征值对固井质量影响程度
-  const modelShapJsonTestData = []
-  mockModelData.result.shap_json_test.forEach(it => {
-    Object.keys(it.shap_values).forEach(k => {
-      modelShapJsonTestData.push({
-        name: filterFieldMapping[k],
-        value: [it.shap_values[k], filterFieldMapping[k]],
-        itemStyle: {
-          color: colorByNumber(it.shap_values[k], maxMinEachLine[k].min, maxMinEachLine[k].max)
-        }
-      })
-    })
-  })
-  featureValueAnalysisChart.setOption({
-    title: {
-      text: '特征值对固井质量影响程度/单井智能预测得分'
-    },
-    color: ['#3B82F6', '#10B981'],
-    tooltip: { trigger: 'item' },
-    legend: {
-      top: 0,
-      right: '6%'
-    },
-    grid: {
-      left: '3%',
-      right: '7%',
-      bottom: '3%',
-      top: '5%',
-      containLabel: true
-    },
-    xAxis: {
-      type: 'value',
-      axisLine: {
-        show: true
-      },
-      axisTick: {
-        show: true
-      },
-      max: maxAbs,
-      min: -maxAbs
-    },
-    yAxis: {
-      type: 'category',
-      axisTick: {
-        show: false
-      },
-      axisLabel: {
-        interval: 0
-      },
-      data: Object.values(filterFieldMapping)
-    },
-    graphic: [
-      {
-        type: 'group',
-        right: 30,
-        top: 'center',
-        children: [
-          {
-            type: 'rect',
-            z: 100,
-            left: 'center',
-            top: 'middle',
-            shape: {
-              width: 10,
-              height: 550,
-              r: [10]
-            },
-            style: {
-              fill: {
-                type: 'linear',
-                x: 0,
-                y: 1,
-                x2: 0,
-                y2: 0,
-                colorStops: [
-                  { offset: 0, color: 'blue' },
-                  { offset: 1, color: 'red' }
-                ]
-              }
-            }
-          }
-        ]
-      },
-      {
-        type: 'group',
-        right: 0,
-        top: 0,
-        children: [
-          {
-            type: 'text',
-            z: 100,
-            style: {
-              fill: '#333',
-              overflow: 'break',
-              text: 'High',
-              font: '14px Microsoft YaHei',
-              fontWeight: 'bolder'
-            }
-          }
-        ]
-      },
-      {
-        type: 'group',
-        right: 0,
-        bottom: 0,
-        children: [
-          {
-            type: 'text',
-            z: 100,
-            style: {
-              fill: '#333',
-              overflow: 'break',
-              text: 'Low',
-              font: '14px Microsoft YaHei',
-              fontWeight: 'bolder'
-            }
-          }
-        ]
-      },
-      {
-        type: 'group',
-        right: 0,
-        bottom: 'center',
-        rotation: -23.55,
-        children: [
-          {
-            type: 'text',
-            z: 100,
-            style: {
-              fill: '#333',
-              overflow: 'break',
-              text: 'Feature Value',
-              font: '14px Microsoft YaHei'
-            }
-          }
-        ]
-      },
-      {
-        type: 'group',
-        right: 240,
-        bottom: 0,
-        children: [
-          {
-            type: 'text',
-            z: 100,
-            style: {
-              fill: '#333',
-              overflow: 'break',
-              text: 'SHAP Value(impact on model output)',
-              font: '14px Microsoft YaHei'
-            }
-          }
-        ]
-      }
-    ],
-    series: [
-      {
-        type: 'scatter',
-        symbolSize: 5,
-        data: modelShapJsonTestData
-      }
-    ]
-  });
-};
-const initSingleWellAnalysisChart = () => {
-  // 过滤特征要素
-  const filterFieldMapping = {}
-  Object.entries(fieldMapping).forEach(it => {
-    Object.keys(mockProcessData.result.processed_feature).forEach(k => {
-      if (it[0] === k) {
-        filterFieldMapping[k] = it[1]
-      }
-    })
-  })
-  // 单井特征值影响分析
-  const echartsRef4ForData = []
-  const narrowWidth = 0.015
-  let startPoint = narrowWidth // 累加值
-  const singleShapValues = mockSingleData.sample_1.shap_values
-  const singleEfx = mockSingleData.sample_1.E_fx
-  for (const key in singleShapValues) {
-    if (Object.prototype.hasOwnProperty.call(singleShapValues, key)) {
-      const v = singleShapValues[key]
-      echartsRef4ForData.push({
-        label: key,
-        value: v
-      })
-    }
-  }
-  const maxVal = echartsRef4ForData.reduce((pre, cur) => cur.value + pre, 0)
-
-  const singleWellAnalysisChart = echarts.init(singleWellAnalysisChartRef.value);
-  singleWellAnalysisChart.setOption({
-    title: {
-      text: '单井特征值影响分析'
-    },
-    tooltip: {
-      trigger: 'axis',
-      axisPointer: {
-        type: 'shadow'
-      },
-      formatter(itm) {
-        if (itm.find(it => it.value !== '-').value !== '-') {
-          return itm.find(it => it.value !== '-').axisValue + ': ' + itm.find(it => it.value !== '-').value
-        }
-      }
-    },
-    grid: {
-      left: '3%',
-      right: '10%',
-      bottom: '3%',
-      containLabel: true
-    },
-    xAxis: {
-      type: 'value',
-      // 显示 singleEfx 作为基准线（原0点位置现在显示 singleEfx）
-      axisLabel: {
-        formatter: function (value) {
-          // 显示原始值而非差值
-          if (value + singleEfx === singleEfx) {
-            return `E[f(x)] = ${Number(value + singleEfx).toFixed(2)}`
-          } else {
-            return Number(value + singleEfx).toFixed(2)
-          }
-        }
-      },
-      // 突出显示 singleEfx 基准线（原0刻度线）
-      splitLine: {
-        lineStyle: {
-          color: function (params) {
-            return params.value === 0 ? 'red' : '#eee' // 0位置对应实际50
-          },
-          width: function (params) {
-            return params.value === 0 ? 2 : 1
-          }
-        }
-      },
-      min: -maxVal,
-      max: maxVal
-    },
-    yAxis: {
-      type: 'category',
-      axisTick: {
-        show: false
-      },
-      axisLabel: {
-        interval: 0
-      },
-      axisLine: {
-        lineStyle: {
-          type: 'dashed'
-        }
-      },
-      data: echartsRef4ForData.map(it => filterFieldMapping[it.label])
-    },
-    graphic: [
-      {
-        type: 'group',
-        right: 0,
-        top: 0,
-        children: [
-          {
-            type: 'text',
-            right: 0,
-            top: 'middle', // 相对父元素居中
-            style: {
-              text: '预测结果：' + mockSingleData.sample_1.predicted_class,
-              fill: '#FF0d10',
-              fontSize: 14,
-              textAlign: 'center'
-            }
-          },
-          {
-            type: 'text',
-            right: 0,
-            bottom: -30,
-            style: {
-              text: '实际结果：' + mockSingleData.sample_1.true_class,
-              fill: '#188df0',
-              fontSize: 14,
-              textAlign: 'center'
-            }
-          },
-          {
-            type: 'text',
-            right: 0,
-            top: -30,
-            style: {
-              text: '预测为合格的概率：' + Number(mockSingleData.sample_1.fx * 100).toFixed(2) + '%',
-              fontSize: 14,
-              textAlign: 'center'
-            }
-          }
-        ]
-      }
-    ],
-    series: echartsRef4ForData.map((it, idx, arr) => {
-      return {
-        type: 'custom',
-        data: new Array(arr.length).fill('-').map((_, itDataIdx) => {
-          if (idx === itDataIdx) {
-            return it.value
-          } else {
-            return _
-          }
-        }),
-        renderItem: function (params, api) {
-          // 1. 获取当前数据值-x轴值，需要减去上一个元素的值
-          const value = api.value(0)
-          // 2. 获取当前类目在y轴中的位置-y轴坐标
-          const y = api.coord([0, api.value(1)])[1] // api.value(1)是当前索引
-          // 3. 图形高度（每个类目的高度）
-          const height = 20
-          // 4. 定义多边形顶点（基于数据值和坐标系转换）
-          if (idx > 0) {
-            if (!isNaN(value)) {
-              if (arr[idx - 1].value !== 0) {
-                startPoint += (arr[idx - 1].value + narrowWidth)
-              }
-            }
-          }
-          const points = [
-            [api.coord([value === 0 ? startPoint : startPoint, api.value(1)])[0], y - height / 2], // 起点
-            [
-              api.coord(
-                [
-                  value === 0 ? startPoint : value > 0 ? startPoint + value - narrowWidth : startPoint + value + narrowWidth,
-                  api.value(1)
-                ]
-              )[0],
-              y - height / 2
-            ], // 上右
-            [
-              api.coord(
-                [
-                  startPoint + value,
-                  api.value(1)
-                ]
-              )[0],
-              y
-            ], // 右上顶点
-            [
-              api.coord(
-                [
-                  value === 0 ? startPoint : value > 0 ? startPoint + value - narrowWidth : startPoint + value + narrowWidth,
-                  api.value(1)
-                ]
-              )[0],
-              y + height / 2
-            ], // 下右
-            [api.coord([value === 0 ? startPoint : startPoint, api.value(1)])[0], y + height / 2] // 左下
-          ]
-
-          // 5. 返回多边形图形
-          return {
-            type: 'polygon',
-            shape: {
-              points // 多边形顶点数组
-            },
-            style: {
-              fill: api.value(0) > 0 ? '#FF0d10' : '#188df0',
-              lineWidth: 0
-            },
-            textContent: {
-              style: {
-                // 文本内容，可以使用富文本，这里简单显示一个值
-                text: isNaN(value) ? '' : value > 0 ? `+${value}` : value,
-                fill: value > 0 ? '#FF0d10' : '#188df0',
-                fontSize: 14,
-                fontWeight: 'bolder',
-                textAlign: 'center'
-              }
-            },
-            // 文本的布局配置 (textConfig)
-            textConfig: {
-              position: 'right',
-              // 偏移量 [横向, 纵向]，单位是像素（px）
-              offset: [0, 0],
-              autoRotate: false
-            },
-            // 文本的层级，确保文本显示在图形上方
-            z2: 100,
-            // 6. 定义鼠标hover的交互区域
-            emphasis: {
-              style: {
-                fill: api.value(0) > 0 ? '#FF0d1099' : '#188df099'
-              }
-            }
-          }
-        },
-        // 7. 声明数据维度（x轴为数值，y轴为索引）
-        encode: {
-          x: 0, // 第0维度对应x轴
-          y: 1 // 第1维度对应y轴（自动使用数据索引）
-        }
-      }
-    })
-  });
-};
 
 const handleCloseResultAnalysisDialog = () => {
   showResultAnalysisDialog.value = false;
@@ -1718,6 +1547,35 @@ const handleSizeChange = (size) => {
 
 const handleCurrentChange = (page) => {
   currentPage.value = page;
+};
+
+/**
+ * 格式化权重数值
+ * @param {number} value - 权重值
+ * @returns {string} 格式化后的权重值
+ */
+const formatWeight = (value) => {
+  if (value === null || value === undefined) return '-';
+  return (value * 100).toFixed(2) + '%';
+};
+
+/**
+ * 获取表格行的类名，用于区分一级和二级权重
+ * @param {object} param - 行数据对象
+ * @param {number} param.rowIndex - 行索引
+ * @param {object} param.row - 行数据
+ * @returns {string} 行类名
+ */
+const getRowClassName = ({ row }) => {
+  // 一级权重行（有 value1 且有 children）
+  if (row.value1 && row.children) {
+    return 'level-one-row';
+  }
+  // 二级权重行（有 value2 且没有 value1）
+  if (row.value2 && !row.value1) {
+    return 'level-two-row';
+  }
+  return '';
 };
 </script>
 
@@ -1835,6 +1693,101 @@ const handleCurrentChange = (page) => {
 .operation-btn {
   color: #409eff;
   padding: 0 5px;
+}
+
+/* 权重表格样式 */
+.weight-table {
+  :deep(.el-table__header) {
+    th {
+      background-color: #f5f7fa;
+      color: #303133;
+      font-weight: 600;
+      text-align: center;
+    }
+  }
+
+  /* 一级权重行样式 */
+  :deep(.level-one-row) {
+    background-color: #ecf5ff;
+    font-weight: 600;
+    
+    &:hover {
+      background-color: #d9ecff !important;
+    }
+    
+    td {
+      border-bottom: 2px solid #b3d8ff;
+    }
+  }
+
+  /* 二级权重行样式 */
+  :deep(.level-two-row) {
+    background-color: #fafafa;
+    
+    &:hover {
+      background-color: #f0f0f0 !important;
+    }
+    
+    td {
+      border-bottom: 1px solid #ebeef5;
+    }
+  }
+
+  /* 一级权重名称样式 */
+  .level-one-name {
+    color: #409eff;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  /* 二级权重名称样式 */
+  .level-two-name {
+    color: #606266;
+    font-size: 13px;
+    padding-left: 20px;
+  }
+
+  /* 权重值样式 */
+  .weight-value {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 13px;
+  }
+
+  /* 一级权重值样式 */
+  .level-one-weight {
+    background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
+    color: #fff;
+    box-shadow: 0 2px 4px rgba(64, 158, 255, 0.3);
+  }
+
+  /* 二级权重值样式 */
+  .level-two-weight {
+    background: linear-gradient(135deg, #909399 0%, #b1b3b8 100%);
+    color: #fff;
+    box-shadow: 0 2px 4px rgba(144, 147, 153, 0.3);
+  }
+
+  /* 占位符样式 */
+  .weight-placeholder {
+    color: #c0c4cc;
+    font-size: 13px;
+  }
+
+  /* 树形结构展开图标样式 */
+  :deep(.el-table__expand-icon) {
+    color: #409eff;
+    font-size: 14px;
+  }
+
+  /* 表格边框美化 */
+  :deep(.el-table__body) {
+    tr {
+      transition: background-color 0.3s ease;
+    }
+  }
 }
 
 /* 分页样式 */
