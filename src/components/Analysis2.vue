@@ -39,21 +39,21 @@
         </el-form-item>
       </el-form>
       <el-table :data="wellBaseData" border style="width: 100%">
-        <el-table-column prop="序号" label="序号" />
-        <el-table-column prop="井号" label="井号" />
-        <el-table-column prop="项目部" label="项目部" />
-        <el-table-column prop="项目组" label="项目组" />
-        <el-table-column prop="区块" label="区块" />
-        <el-table-column prop="队号" label="队号" />
-        <el-table-column prop="任务类型" label="任务类型" />
-        <el-table-column prop="井别" label="井别" />
-        <el-table-column prop="井型" label="井型" />
-        <el-table-column prop="完钻日期" label="完钻日期" />
-        <el-table-column prop="完钻周期" label="完钻周期" />
-        <el-table-column prop="过程评分" label="过程评分" />
-        <el-table-column prop="结果评分" label="结果评分" />
-        <el-table-column prop="封固合格率" label="封固合格率" />
-        <el-table-column prop="不合格红线（总条数）" label="不合格红线（总条数）" />
+        <el-table-column prop="序号" label="序号" align="center" />
+        <el-table-column prop="井号" label="井号" align="center" />
+        <el-table-column prop="项目部" label="项目部" align="center" />
+        <el-table-column prop="项目组" label="项目组" align="center" />
+        <el-table-column prop="区块" label="区块" align="center" />
+        <el-table-column prop="队号" label="队号" align="center" />
+        <el-table-column prop="任务类型" label="任务类型" align="center" />
+        <el-table-column prop="井别" label="井别" align="center" />
+        <el-table-column prop="井型" label="井型" align="center" />
+        <el-table-column prop="完钻日期" label="完钻日期" align="center" />
+        <el-table-column prop="完钻周期" label="完钻周期" align="center" />
+        <el-table-column prop="过程评分" label="过程评分" align="center" />
+        <el-table-column prop="结果评分" label="结果评分" align="center" />
+        <el-table-column prop="封固合格率" label="封固合格率" align="center" />
+        <el-table-column prop="不合格红线（总条数）" label="不合格红线（总条数）" align="center" />
       </el-table>
     </el-card>
 
@@ -143,10 +143,10 @@
       <!-- 表格 -->
       <el-table :data="wellQualityData" border style="width: 100%">
         <el-table-column type="index" :index="index" label="序号" width="80" align="center" />
-        <el-table-column prop="井号" label="井号" />
-        <el-table-column prop="井别" label="井别" />
-        <el-table-column prop="井型" label="井型" />
-        <el-table-column prop="任务类型" label="任务类型" />
+        <el-table-column prop="井号" label="井号" align="center" />
+        <el-table-column prop="井别" label="井别" align="center" />
+        <el-table-column prop="井型" label="井型" align="center" />
+        <el-table-column prop="任务类型" label="任务类型" align="center" width="100px" />
         <el-table-column prop="红线是否合格" label="红线是否合格" align="center">
           <el-table-column prop="红线1" label="红线1" align="center" />
           <el-table-column prop="红线2" label="红线2" align="center" />
@@ -286,8 +286,8 @@
       <template #footer>
         <!-- 取消确认 -->
         <div class="cancel-confirm-button">
-          <el-button type="primary" @click="handleCancel">取消</el-button>
-          <el-button type="primary" @click="handleSubmit">提交</el-button>
+          <el-button type="primary" @click="expertAnalysisDialogHandleCancel">取消</el-button>
+          <el-button type="primary" @click="expertAnalysisDialogHandleSubmit">提交</el-button>
         </div>
       </template>
     </el-dialog>
@@ -299,7 +299,7 @@ import { ref, onMounted } from 'vue';
 import * as echarts from 'echarts';
 import { Menu } from '@element-plus/icons-vue';
 import { BottomRight } from '@element-plus/icons-vue';
-import { ElMessageBox } from 'element-plus';
+import { ElMessageBox, ElMessage } from 'element-plus';
 import { mockProcessData } from '../mock/mock-process-data';
 import { mockModelData } from '../mock/mock-model-data';
 import { fieldMapping } from '../mock/processFieldMap';
@@ -433,43 +433,276 @@ const wellBaseData = [
 ];
 
 // ---------- 单井质量分析模拟 ----------
+/**
+ * 单井质量分析数据
+ * @type {Array<Object>}
+ */
 const wellQualityData = [
   {
     井号: 'S001-1',
-    井名: '红123',
-    层位: '二类',
-    区块: '兴垦1',
-    施工队伍: '钻井一队',
-    过程评分: '85',
-    结果评分: '88',
-    封固合格率: '90',
+    井别: '生产井',
+    井型: '直井',
+    任务类型: '常规固井',
+    红线1: '合格',
+    红线2: '合格',
+    红线3: '合格',
+    红线4: '合格',
+    红线5: '合格',
+    配方体系: 0,
+    材料准备: 1,
+    入井流体实验: 0,
+    固井施工设计: 0,
+    井眼条件: 2,
+    下套管作业: 0,
+    固井施工准备: 1,
+    固井施工: 1,
+    复杂地质条件: 0,
+    合计: 5,
+    过程评分: 85,
+    结果评分: 88,
+    封固合格率: 90
   },
   {
     井号: 'S001-2',
-    井名: '红124',
-    层位: '三类',
-    区块: '兴垦2',
-    施工队伍: '钻井二队',
-    过程评分: '78',
-    结果评分: '82',
-    封固合格率: '85',
+    井别: '注水井',
+    井型: '定向井',
+    任务类型: '特殊固井',
+    红线1: '合格',
+    红线2: '不合格',
+    红线3: '合格',
+    红线4: '合格',
+    红线5: '合格',
+    配方体系: 2,
+    材料准备: 0,
+    入井流体实验: 1,
+    固井施工设计: 1,
+    井眼条件: 0,
+    下套管作业: 1,
+    固井施工准备: 0,
+    固井施工: 2,
+    复杂地质条件: 1,
+    合计: 8,
+    过程评分: 78,
+    结果评分: 82,
+    封固合格率: 85
   },
   {
     井号: 'S001-3',
-    井名: '红125',
-    层位: '二类',
-    区块: '兴垦1',
-    施工队伍: '钻井一队',
-    过程评分: '90',
-    结果评分: '92',
-    封固合格率: '95',
+    井别: '生产井',
+    井型: '水平井',
+    任务类型: '常规固井',
+    红线1: '合格',
+    红线2: '合格',
+    红线3: '合格',
+    红线4: '合格',
+    红线5: '合格',
+    配方体系: 0,
+    材料准备: 0,
+    入井流体实验: 0,
+    固井施工设计: 0,
+    井眼条件: 1,
+    下套管作业: 0,
+    固井施工准备: 0,
+    固井施工: 0,
+    复杂地质条件: 0,
+    合计: 1,
+    过程评分: 90,
+    结果评分: 92,
+    封固合格率: 95
   },
+  {
+    井号: 'S001-4',
+    井别: '生产井',
+    井型: '直井',
+    任务类型: '常规固井',
+    红线1: '合格',
+    红线2: '合格',
+    红线3: '不合格',
+    红线4: '合格',
+    红线5: '合格',
+    配方体系: 1,
+    材料准备: 1,
+    入井流体实验: 0,
+    固井施工设计: 2,
+    井眼条件: 1,
+    下套管作业: 1,
+    固井施工准备: 1,
+    固井施工: 1,
+    复杂地质条件: 0,
+    合计: 8,
+    过程评分: 82,
+    结果评分: 85,
+    封固合格率: 87
+  },
+  {
+    井号: 'S001-5',
+    井别: '注水井',
+    井型: '定向井',
+    任务类型: '特殊固井',
+    红线1: '不合格',
+    红线2: '合格',
+    红线3: '合格',
+    红线4: '合格',
+    红线5: '合格',
+    配方体系: 2,
+    材料准备: 2,
+    入井流体实验: 1,
+    固井施工设计: 1,
+    井眼条件: 2,
+    下套管作业: 0,
+    固井施工准备: 1,
+    固井施工: 3,
+    复杂地质条件: 1,
+    合计: 13,
+    过程评分: 72,
+    结果评分: 75,
+    封固合格率: 78
+  },
+  {
+    井号: 'S001-6',
+    井别: '生产井',
+    井型: '水平井',
+    任务类型: '常规固井',
+    红线1: '合格',
+    红线2: '合格',
+    红线3: '合格',
+    红线4: '合格',
+    红线5: '合格',
+    配方体系: 0,
+    材料准备: 0,
+    入井流体实验: 0,
+    固井施工设计: 0,
+    井眼条件: 0,
+    下套管作业: 0,
+    固井施工准备: 0,
+    固井施工: 0,
+    复杂地质条件: 0,
+    合计: 0,
+    过程评分: 95,
+    结果评分: 96,
+    封固合格率: 98
+  },
+  {
+    井号: 'S001-7',
+    井别: '生产井',
+    井型: '直井',
+    任务类型: '常规固井',
+    红线1: '合格',
+    红线2: '合格',
+    红线3: '合格',
+    红线4: '不合格',
+    红线5: '合格',
+    配方体系: 1,
+    材料准备: 0,
+    入井流体实验: 1,
+    固井施工设计: 0,
+    井眼条件: 1,
+    下套管作业: 1,
+    固井施工准备: 0,
+    固井施工: 2,
+    复杂地质条件: 0,
+    合计: 6,
+    过程评分: 80,
+    结果评分: 83,
+    封固合格率: 86
+  },
+  {
+    井号: 'S001-8',
+    井别: '注水井',
+    井型: '定向井',
+    任务类型: '特殊固井',
+    红线1: '合格',
+    红线2: '合格',
+    红线3: '合格',
+    红线4: '合格',
+    红线5: '不合格',
+    配方体系: 1,
+    材料准备: 1,
+    入井流体实验: 0,
+    固井施工设计: 1,
+    井眼条件: 0,
+    下套管作业: 1,
+    固井施工准备: 1,
+    固井施工: 1,
+    复杂地质条件: 1,
+    合计: 7,
+    过程评分: 79,
+    结果评分: 81,
+    封固合格率: 84
+  },
+  {
+    井号: 'S001-9',
+    井别: '生产井',
+    井型: '水平井',
+    任务类型: '常规固井',
+    红线1: '合格',
+    红线2: '合格',
+    红线3: '合格',
+    红线4: '合格',
+    红线5: '合格',
+    配方体系: 0,
+    材料准备: 0,
+    入井流体实验: 0,
+    固井施工设计: 1,
+    井眼条件: 0,
+    下套管作业: 0,
+    固井施工准备: 0,
+    固井施工: 0,
+    复杂地质条件: 0,
+    合计: 1,
+    过程评分: 88,
+    结果评分: 90,
+    封固合格率: 92
+  },
+  {
+    井号: 'S001-10',
+    井别: '生产井',
+    井型: '直井',
+    任务类型: '常规固井',
+    红线1: '不合格',
+    红线2: '不合格',
+    红线3: '合格',
+    红线4: '合格',
+    红线5: '合格',
+    配方体系: 3,
+    材料准备: 2,
+    入井流体实验: 2,
+    固井施工设计: 2,
+    井眼条件: 2,
+    下套管作业: 1,
+    固井施工准备: 2,
+    固井施工: 4,
+    复杂地质条件: 1,
+    合计: 19,
+    过程评分: 65,
+    结果评分: 68,
+    封固合格率: 72
+  }
 ];
 
 // ---------- 图表初始化（echarts） ----------
 const scoreRateChart = ref(null);   // 单井平均得分率图表
 const unqualifiedChart = ref(null); // 不合格井个数图表
 const qualifiedRateChart = ref(null); // 完井平均合格率图表
+
+// ---------- 下钻功能相关状态 ----------
+/**
+ * 当前下钻层级：'block' 表示区块层，'controlItem' 表示控制项层
+ * @type {Ref<string>}
+ */
+const currentDrillLevel = ref('block');
+
+/**
+ * 当前选中的区块（用于下钻）
+ * @type {Ref<string|null>}
+ */
+const selectedBlock = ref(null);
+
+/**
+ * 合格率图表实例
+ * @type {any}
+ */
+let qualifiedRateInstance = null;
 
 // handleQueryWell 展开井号数据库
 const handleQueryWell = () => {
@@ -964,43 +1197,284 @@ const initCharts = () => {
     }],
   });
 
-  // 3. 单井结果评分对比 (需要数据下钻)
-  const block = ['井号1', '井号2', '井号3', '井号4', '井号5', '井号6', '井号7'];
-  const controlItem = ['控制项1', '控制项2', '控制项3', '控制项4', '控制项5', '控制项6', '控制项7'];
-  const qualifiedRateInstance = echarts.init(qualifiedRateChart.value);
-  qualifiedRateInstance.setOption({
-    xAxis: { type: 'category', data: block },
-    yAxis: { type: 'value', name: '得分' },
-    // 柱子之间的间隔大一点，不要重叠
-    // 显示legend
-    legend: {
-      show: true,
-      top: '0%',
-      right: '3%',
-      selected: {
-        '控制项1': true,
-        '控制项2': true,
-        '控制项3': true,
-        '控制项4': true,
-        '控制项5': true,
-        '控制项6': true,
-        '控制项7': true,
-      },
-    },
-    grid: { left: '3%', right: '3%', bottom: '3%', containLabel: true },
-    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
-    // 取值范围为0-100
-    barGap: '80%',
-    itemStyle: {
-      borderRadius: [15, 15, 0, 0],
-    },
-    series: controlItem.map(item => ({
-      name: item,
-      type: 'bar',
-      data: block.map((_, index) => index === 0 ? 92 : index === 10 ? 88 : index === 20 ? 85 : index === 30 ? 80 : index === 40 ? 90 : index === 50 ? 86 : index === 60 ? 82 : index === 70 ? 82 : Math.floor(Math.random() * 100)),
-      color: ['#4895ef', '#f9c74f', '#4cc9f0', '#f94144', '#7209b7', '#f9844a', '#4cc9f0'][controlItem.indexOf(item)],
-    })),
-  });
+  // 3. 单井结果评分对比 （带下钻功能）
+  /**
+   * 区块数据
+   * @type {string[]}
+   */
+  const blocks = ['区块1', '区块2', '区块3', '区块4', '区块5', '区块6', '区块7'];
+
+  /**
+   * 区块对应的控制项数据（模拟数据）
+   * @type {Object<string, Array<{name: string, value: number}>>}
+   */
+  const blockControlItemData = {
+    '区块1': [
+      { name: '配方体系', value: 85 },
+      { name: '材料准备', value: 78 },
+      { name: '入井流体实验', value: 92 },
+      { name: '固井施工设计', value: 88 },
+      { name: '井眼条件', value: 88 },
+      { name: '下套管作业', value: 88 },
+      { name: '固井施工准备', value: 88 },
+      { name: '固井施工', value: 88 },
+      { name: '复杂地质条件', value: 88 }
+    ],
+    '区块2': [
+      { name: '配方体系', value: 82 },
+      { name: '材料准备', value: 90 },
+      { name: '入井流体实验', value: 75 },
+      { name: '固井施工设计', value: 88 },
+      { name: '井眼条件', value: 88 },
+      { name: '下套管作业', value: 88 },
+      { name: '固井施工准备', value: 88 },
+      { name: '固井施工', value: 88 },
+      { name: '复杂地质条件', value: 88 }
+    ],
+    '区块3': [
+      { name: '配方体系', value: 79 },
+      { name: '材料准备', value: 86 },
+      { name: '入井流体实验', value: 91 },
+      { name: '固井施工设计', value: 83 },
+      { name: '井眼条件', value: 88 },
+      { name: '下套管作业', value: 88 },
+      { name: '固井施工准备', value: 88 },
+      { name: '固井施工', value: 88 },
+      { name: '复杂地质条件', value: 88 }
+    ],
+    '区块4': [
+      { name: '配方体系', value: 88 },
+      { name: '材料准备', value: 85 },
+      { name: '入井流体实验', value: 90 },
+      { name: '固井施工设计', value: 87 },
+      { name: '井眼条件', value: 88 },
+      { name: '下套管作业', value: 88 },
+      { name: '固井施工准备', value: 88 },
+      { name: '固井施工', value: 88 },
+      { name: '复杂地质条件', value: 88 }
+    ],
+    '区块5': [
+      { name: '配方体系', value: 76 },
+      { name: '材料准备', value: 89 },
+      { name: '入井流体实验', value: 84 },
+      { name: '固井施工设计', value: 81 },
+      { name: '井眼条件', value: 88 },
+      { name: '下套管作业', value: 88 },
+      { name: '固井施工准备', value: 88 },
+      { name: '固井施工', value: 88 },
+      { name: '复杂地质条件', value: 88 }
+    ],
+    '区块6': [
+      { name: '配方体系', value: 93 },
+      { name: '材料准备', value: 88 },
+      { name: '入井流体实验', value: 90 },
+      { name: '固井施工设计', value: 85 },
+      { name: '井眼条件', value: 88 },
+      { name: '下套管作业', value: 88 },
+      { name: '固井施工准备', value: 88 },
+      { name: '固井施工', value: 88 },
+      { name: '复杂地质条件', value: 88 }
+    ],
+    '区块7': [
+      { name: '配方体系', value: 80 },
+      { name: '材料准备', value: 87 },
+      { name: '入井流体实验', value: 87 },
+      { name: '固井施工设计', value: 82 },
+      { name: '井眼条件', value: 88 },
+      { name: '下套管作业', value: 88 },
+      { name: '固井施工准备', value: 88 },
+      { name: '固井施工', value: 88 },
+      { name: '复杂地质条件', value: 88 }
+    ]
+  };
+
+  /**
+   * 区块的合格率数据（第一层显示）
+   * @type {number[]}
+   */
+  const blockQualifiedRates = [85, 82, 79, 88, 76, 93, 80];
+
+  /**
+   * 更新合格率图表配置
+   * @param {string} level - 当前层级：'block' 或 'controlItem'
+   * @param {string|null} blockName - 选中的区块名称（仅在下钻时使用）
+   */
+  const updateQualifiedRateChart = (level, blockName = null) => {
+    if (!qualifiedRateInstance) {
+      qualifiedRateInstance = echarts.init(qualifiedRateChart.value);
+    }
+
+    let option;
+
+    if (level === 'block') {
+      // 第一层：显示区块
+      option = {
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: {
+            type: 'shadow'
+          },
+          formatter: (params) => {
+            const param = params[0];
+            return `${param.name}<br/>合格率: ${param.value}%<br/><span style="color: #999; font-size: 12px;">点击柱状图查看详情</span>`;
+          }
+        },
+        grid: {
+          left: '3%',
+          right: '3%',
+          bottom: '3%',
+          containLabel: true
+        },
+        xAxis: {
+          type: 'category',
+          data: blocks,
+          axisLabel: {
+            interval: 0,
+            rotate: 0
+          }
+        },
+        yAxis: {
+          type: 'value',
+          name: '合格率(%)',
+          max: 100
+        },
+        series: [{
+          name: '合格率',
+          type: 'bar',
+          data: blockQualifiedRates,
+          itemStyle: {
+            borderRadius: [15, 15, 0, 0],
+            color: function (params) {
+              const colors = ['#4895ef', '#f9c74f', '#4cc9f0', '#f94144', '#7209b7', '#f9844a', '#4cc9f0'];
+              return colors[params.dataIndex % colors.length];
+            }
+          },
+          barWidth: 30,
+          label: {
+            show: true,
+            position: 'top',
+            formatter: '{c}%'
+          },
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowOffsetX: 0,
+              shadowColor: 'rgba(0, 0, 0, 0.5)'
+            }
+          }
+        }]
+      };
+    } else {
+      // 第二层：显示控制项
+      const controlItemData = blockControlItemData[blockName] || [];
+      const controlItemNames = controlItemData.map(item => item.name);
+      const controlItemValues = controlItemData.map(item => item.value);
+
+      option = {
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: {
+            type: 'shadow'
+          },
+          formatter: (params) => {
+            const param = params[0];
+            return `${param.name}<br/>合格率: ${param.value}%`;
+          }
+        },
+        grid: {
+          left: '3%',
+          right: '3%',
+          bottom: '3%',
+          top: '15%',
+          containLabel: true
+        },
+        xAxis: {
+          type: 'category',
+          data: controlItemNames,
+          axisLabel: {
+            interval: 0,
+            rotate: 0
+          }
+        },
+        yAxis: {
+          type: 'value',
+          name: '合格率(%)',
+          max: 100
+        },
+        graphic: [
+          {
+            type: 'text',
+            right: '3%',
+            top: '0',
+            id: 'backButton',
+            style: {
+              text: `${blockName} 控制项` + ' - 返回',
+              fill: '#000000',
+              fontSize: 14,
+            },
+            z: 2000,
+          }
+        ],
+        series: [{
+          name: '合格率',
+          type: 'bar',
+          data: controlItemValues,
+          itemStyle: {
+            borderRadius: [15, 15, 0, 0],
+            color: function (params) {
+              const colors = ['#4895ef', '#f9c74f', '#4cc9f0', '#f94144', '#7209b7', '#f9844a', '#4cc9f0'];
+              return colors[params.dataIndex % colors.length];
+            }
+          },
+          barWidth: 30,
+          label: {
+            show: true,
+            position: 'top',
+            formatter: '{c}%'
+          },
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowOffsetX: 0,
+              shadowColor: 'rgba(0, 0, 0, 0.5)'
+            }
+          }
+        }]
+      };
+    }
+
+    qualifiedRateInstance.setOption(option, true);
+  };
+
+  // 初始化图表实例
+  if (!qualifiedRateInstance) {
+    qualifiedRateInstance = echarts.init(qualifiedRateChart.value);
+
+    // 只注册一次事件监听器
+    qualifiedRateInstance.on('click', (params) => {
+      console.log('点击了返回按钮', params.componentType, params);
+      // 检查是否点击了返回按钮
+      if (params.componentType === 'graphic' && params.event.target.parent.id === 'backButton') {
+        console.log('点击了返回按钮');
+        // 返回区块层
+        currentDrillLevel.value = 'block';
+        selectedBlock.value = null;
+        updateQualifiedRateChart('block');
+        return;
+      }
+
+      // 在区块层时，点击柱状图下钻到控制项层
+      if (currentDrillLevel.value === 'block' && params.componentType === 'series') {
+        const clickedBlock = params.name;
+        currentDrillLevel.value = 'controlItem';
+        selectedBlock.value = clickedBlock;
+        updateQualifiedRateChart('controlItem', clickedBlock);
+      }
+    });
+  }
+
+  // 初始化第一层（区块层）
+  updateQualifiedRateChart('block');
 };
 
 // handleProcessScoreCheck 过程评分校核
@@ -1036,9 +1510,16 @@ const expertInfo = ref({
   邮箱: '1234567890@qq.com',
   备注: '备注',
 });
+const expertAnalysisDialogHandleCancel = () => {
+  expertAnalysisDialog.value = false;
+};
+const expertAnalysisDialogHandleSubmit = () => {
+  console.log('专家分析数据', expertAnalysisData.value);
+  expertAnalysisDialog.value = false;
+  ElMessage.success('专家分析提交成功');
+};
 // handleExpertAnalysis 专家分析
 const handleExpertAnalysis = (row) => {
-  console.log('专家分析', row);
   // 弹出窗口，窗口内容为专家分析
   expertAnalysisDialog.value = true;
   expertAnalysisData.value = [
