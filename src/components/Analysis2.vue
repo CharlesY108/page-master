@@ -181,45 +181,59 @@
     </el-card>
 
     <!-- 过程分析模块弹窗 -->
-    <el-dialog v-model="processScoreCheckDialog" title="过程分析" width="50%">
-      <div class="process-score-check-content">
-        <div class="process-score-check-content-left">
-          <div class="process-score-check-content-left-title">
-            <el-table :data="processScoreCheckData" border style="width: 100%">
-              <el-table-column prop="控制项" label="控制项" />
-              <el-table-column prop="评分" label="评分" />
-              <el-table-column prop="评分标准" label="评分标准" />
-              <el-table-column prop="评分依据" label="评分依据" />
-              <el-table-column prop="评分结果" label="评分结果" />
-              <el-table-column prop="评分结论" label="评分结论" />
-              <el-table-column prop="评分建议" label="评分建议" />
-              <el-table-column prop="评分意见" label="评分意见" />
-              <el-table-column prop="评分意见" label="评分意见" />
-            </el-table>
-          </div>
-        </div>
+    <el-dialog v-model="processScoreCheckDialog" title="过程分析" width="80%">
+      <div style="display: flex; gap: 20px; height: 60vh;">
+        <el-table :data="processScoreCheckDialogTableData" style="width: 100%;height: 100%;" row-key="id" border
+          default-expand-all :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
+          :row-class-name="getRowClassName" class="weight-table">
+          <el-table-column prop="name" label="控制项" min-width="200">
+            <template #default="{ row }">
+              <span :class="row.value1 ? 'level-one-name' : 'level-two-name'">
+                {{ row.name }}
+              </span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="value1" label="一级权重得分" width="150" align="center">
+            <template #default="{ row }">
+              <span v-if="row.value1" class="weight-value level-one-weight">
+                {{ row.value1.toFixed(2) }}
+              </span>
+              <span v-else class="weight-placeholder">-</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="value2" label="二级权重得分" width="150" align="center">
+            <template #default="{ row }">
+              <span v-if="row.value2" class="weight-value level-two-weight">
+                {{ row.value2.toFixed(2) }}
+              </span>
+              <span v-else class="weight-placeholder">-</span>
+            </template>
+          </el-table-column>
+        </el-table>
       </div>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="processScoreCheckDialogHandleCancel">取 消</el-button>
+          <el-button type="primary" @click="processScoreCheckDialogHandleSubmit">确 定</el-button>
+        </span>
+      </template>
     </el-dialog>
 
     <!-- 结果分析弹窗 -->
-    <el-dialog v-model="resultAnalysisDialog" title="结果分析" width="50%">
-      <div class="result-analysis-content">
-        <div class="result-analysis-content-left">
-          <div class="result-analysis-content-left-title">
-            <!-- 特征值对固井质量影响程度分析图 -->
-            <div ref="featureValueAnalysisChartRef" class="chart-container" style="width: 50%; height: 500px;">
-            </div>
-            <!-- 单井分析图 -->
-            <div ref="singleWellAnalysisChartRef" class="chart-container" style="width: 50%; height: 500px;">
-            </div>
-          </div>
+    <el-dialog v-model="resultAnalysisDialog" title="结果分析" width="80%">
+      <div class="result-analysis-content" style="height: 60vh;">
+        <!-- 特征值对固井质量影响程度分析图 -->
+        <div ref="featureValueAnalysisChartRef" class="chart-container" style="width: 50%; height: 100%;">
+        </div>
+        <!-- 单井分析图 -->
+        <div ref="singleWellAnalysisChartRef" class="chart-container" style="width: 50%; height: 100%;">
         </div>
       </div>
     </el-dialog>
 
     <!-- 专家分析弹窗 -->
-    <el-dialog v-model="expertAnalysisDialog" title="专家分析" width="50%">
-      <div class="expert-analysis-content">
+    <el-dialog v-model="expertAnalysisDialog" title="专家分析" width="80%">
+      <div class="expert-analysis-content" style="height: 60vh;">
         <div class="expert-analysis-content-left">
           <div class="expert-analysis-content-left-title">
             <!-- 专家信息:姓名 工号 职称 使用 el-form  -->
@@ -1478,14 +1492,241 @@ const initCharts = () => {
 };
 
 // handleProcessScoreCheck 过程评分校核
+const processScoreCheckDialog = ref(false);
 const handleProcessScoreCheck = (row) => {
   console.log('过程评分校核', row);
   // 弹出窗口，窗口内容为过程评分校核
-  ElMessageBox.alert('过程评分校核', '过程评分校核', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    showCancelButton: false,
+  processScoreCheckDialog.value = true;
+  setTimeout(() => {
+    initProcessScoreCheckDialogTableData();
   });
+};
+const processScoreCheckDialogHandleCancel = () => {
+  processScoreCheckDialog.value = false;
+};
+const processScoreCheckDialogHandleSubmit = () => {
+  console.log('过程评分校核提交', processScoreCheckDialogTableData.value);
+  processScoreCheckDialog.value = false;
+};
+const processScoreCheckDialogTableData = ref([]);
+const initProcessScoreCheckDialogTableData = () => {
+  processScoreCheckDialogTableData.value = [
+    {
+      id: "1",
+      name: '入井流体实验',
+      value1: 0.183,
+      children: [
+        {
+          id: "1.1",
+          name: '水泥浆稠化时间',
+          value2: 0.411,
+        },
+        {
+          id: "1.2",
+          name: '初始稠度',
+          value2: 0.136,
+        },
+        {
+          id: "1.3",
+          name: '水泥石抗压强度(24h)',
+          value2: 0.349,
+        },
+        {
+          id: "1.4",
+          name: '水泥浆静置后上下密度差',
+          value2: 0.104,
+        }
+      ]
+    },
+    {
+      id: "2",
+      name: '井眼条件',
+      value1: 0.189,
+      children: [
+        {
+          id: "2.1",
+          name: '环空上返速度',
+          value2: 0.121,
+        },
+        {
+          id: "2.2",
+          name: '钻井液循环周次',
+          value2: 0.084,
+        },
+        {
+          id: "2.3",
+          name: '进出口密度差',
+          value2: 0.093,
+        },
+        {
+          id: "2.4",
+          name: '上窜速度',
+          value2: 0.041,
+        },
+        {
+          id: "2.5",
+          name: '固井前钻井液塑性粘度',
+          value2: 0.148,
+        },
+        {
+          id: "2.6",
+          name: '钻头-套管尺寸（环空间隙）',
+          value2: 0.135,
+        },
+        {
+          id: "2.7",
+          name: '井径扩大率',
+          value2: 0.378,
+        }
+      ]
+    },
+    {
+      id: "3",
+      name: '下套管作业',
+      value1: 0.084,
+      children: [
+        {
+          id: "3.1",
+          name: '套管居中度',
+          value2: 0.541,
+        },
+        {
+          id: "3.2",
+          name: '人工井底距油层底界',
+          value2: 0.264,
+        },
+        {
+          id: "3.3",
+          name: '油井阻流环与浮鞋间距',
+          value2: 0.195,
+        }
+      ]
+    },
+    {
+      id: "4",
+      name: '固井施工',
+      value1: 0.341,
+      children: [
+        {
+          id: "4.1",
+          name: '前置液体积量占裸眼环空高度',
+          value2: 0.0581,
+        },
+        {
+          id: "4.2",
+          name: '前置液紊流接触时间',
+          value2: 0.0745,
+        },
+        {
+          id: "4.3",
+          name: '浆柱密度差',
+          value2: 0.0431,
+        },
+        {
+          id: "4.4",
+          name: '隔离液在循环温度下动塑比',
+          value2: 0.0325,
+        },
+        {
+          id: "4.5",
+          name: '隔离液滤失量',
+          value2: 0.024,
+        },
+        {
+          id: "4.6",
+          name: '水泥浆密度记录偏差',
+          value2: 0.0479,
+        },
+        {
+          id: "4.7",
+          name: '测量记录间隔',
+          value2: 0.0311,
+        },
+        {
+          id: "4.8",
+          name: '中停时间',
+          value2: 0.0795,
+        },
+        {
+          id: "4.9",
+          name: '施工参数（排量、压力、水泥浆密度、注入量等）记录',
+          value2: 0.0341,
+        },
+        {
+          id: "4.10",
+          name: '胶塞入井',
+          value2: 0.0727,
+        },
+        {
+          id: "4.11",
+          name: '替量符合固井施工设计要求',
+          value2: 0.103,
+        },
+        {
+          id: "4.12",
+          name: '顶替过程连续',
+          value2: 0.0705,
+        },
+        {
+          id: "4.13",
+          name: '压力有监控记录',
+          value2: 0.0205,
+        },
+        {
+          id: "4.14",
+          name: '排量有监控记录',
+          value2: 0.0235,
+        },
+        {
+          id: "4.15",
+          name: '井口返出情况有监控记录',
+          value2: 0.0282,
+        },
+        {
+          id: "4.16",
+          name: '碰压',
+          value2: 0.063,
+        },
+        {
+          id: "4.17",
+          name: '无碰压现象，顶替量－设计顶替量',
+          value2: 0.0691,
+        },
+        {
+          id: "4.18",
+          name: '小排量碰压，碰压附加值',
+          value2: 0.033,
+        },
+        {
+          id: "4.19",
+          name: '下胶塞清水静压穿透压力',
+          value2: 0.0161,
+        }
+      ]
+    },
+    {
+      id: "5",
+      name: '水泥浆返高',
+      value1: 0.203,
+      children: [
+        {
+          id: "5.1",
+          name: '表层套管',
+          value2: 0.144,
+        },
+        {
+          id: "5.2",
+          name: '技术套管',
+          value2: 0.281,
+        },
+        {
+          id: "5.3",
+          name: '生产套管',
+          value2: 0.575,
+        }
+      ]
+    }
+  ];
 };
 
 const resultAnalysisDialog = ref(false);
