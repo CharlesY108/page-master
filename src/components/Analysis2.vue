@@ -181,7 +181,15 @@
     </el-card>
 
     <!-- 过程分析模块弹窗 -->
-    <el-dialog v-model="processScoreCheckDialog" title="过程分析" width="80%">
+    <el-dialog v-model="processScoreCheckDialog" width="50%">
+      <template #header>
+        <div class="card-header">
+          <span>过程分析</span>
+          &nbsp;&nbsp;
+          <el-divider direction="vertical" />
+          <span class="total-score">总分：{{ processScoreCheckDialogTotalScore }}</span>
+        </div>
+      </template>
       <div style="display: flex; gap: 20px; height: 60vh;">
         <el-table :data="processScoreCheckDialogTableData" style="width: 100%;height: 100%;" row-key="id" border
           default-expand-all :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
@@ -193,7 +201,7 @@
               </span>
             </template>
           </el-table-column>
-          <el-table-column prop="value1" label="一级权重得分" width="150" align="center">
+          <el-table-column prop="value1" label="一级权重基准值" width="150" align="center">
             <template #default="{ row }">
               <span v-if="row.value1" class="weight-value level-one-weight">
                 {{ row.value1.toFixed(2) }}
@@ -201,10 +209,26 @@
               <span v-else class="weight-placeholder">-</span>
             </template>
           </el-table-column>
-          <el-table-column prop="value2" label="二级权重得分" width="150" align="center">
+          <el-table-column prop="value1score" label="一级权重得分" width="150" align="center">
+            <template #default="{ row }">
+              <span v-if="row.value1" class="weight-value-base level-one-weight-base">
+                {{ row.value1score.toFixed(2) }}
+              </span>
+              <span v-else class="weight-placeholder">-</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="value2" label="二级权重基准值" width="150" align="center">
             <template #default="{ row }">
               <span v-if="row.value2" class="weight-value level-two-weight">
                 {{ row.value2.toFixed(2) }}
+              </span>
+              <span v-else class="weight-placeholder">-</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="value2score" label="二级权重得分" width="150" align="center">
+            <template #default="{ row }">
+              <span v-if="row.value2" class="weight-value-base level-two-weight-base">
+                {{ row.value2score.toFixed(2) }}
               </span>
               <span v-else class="weight-placeholder">-</span>
             </template>
@@ -1509,32 +1533,42 @@ const processScoreCheckDialogHandleSubmit = () => {
   processScoreCheckDialog.value = false;
 };
 const processScoreCheckDialogTableData = ref([]);
+const processScoreCheckDialogTotalScore = ref(98.56);
 const initProcessScoreCheckDialogTableData = () => {
+  /**
+   * value1score 总分100 随机生成
+   * value2score 总分100 随机生成
+   */
   processScoreCheckDialogTableData.value = [
     {
       id: "1",
       name: '入井流体实验',
       value1: 0.183,
+      value1score: Math.ceil(Math.random() * 100),
       children: [
         {
           id: "1.1",
           name: '水泥浆稠化时间',
           value2: 0.411,
+          value2score: Math.ceil(Math.random() * 100),
         },
         {
           id: "1.2",
           name: '初始稠度',
           value2: 0.136,
+          value2score: Math.ceil(Math.random() * 100),
         },
         {
           id: "1.3",
           name: '水泥石抗压强度(24h)',
           value2: 0.349,
+          value2score: Math.ceil(Math.random() * 100),
         },
         {
           id: "1.4",
           name: '水泥浆静置后上下密度差',
           value2: 0.104,
+          value2score: Math.ceil(Math.random() * 100),
         }
       ]
     },
@@ -1542,41 +1576,49 @@ const initProcessScoreCheckDialogTableData = () => {
       id: "2",
       name: '井眼条件',
       value1: 0.189,
+      value1score: Math.ceil(Math.random() * 100),
       children: [
         {
           id: "2.1",
           name: '环空上返速度',
           value2: 0.121,
+          value2score: Math.ceil(Math.random() * 100),
         },
         {
           id: "2.2",
           name: '钻井液循环周次',
           value2: 0.084,
+          value2score: Math.ceil(Math.random() * 100),
         },
         {
           id: "2.3",
           name: '进出口密度差',
           value2: 0.093,
+          value2score: Math.ceil(Math.random() * 100),
         },
         {
           id: "2.4",
           name: '上窜速度',
           value2: 0.041,
+          value2score: Math.ceil(Math.random() * 100),
         },
         {
           id: "2.5",
           name: '固井前钻井液塑性粘度',
           value2: 0.148,
+          value2score: Math.ceil(Math.random() * 100),
         },
         {
           id: "2.6",
           name: '钻头-套管尺寸（环空间隙）',
           value2: 0.135,
+          value2score: Math.ceil(Math.random() * 100),
         },
         {
           id: "2.7",
           name: '井径扩大率',
           value2: 0.378,
+          value2score: Math.ceil(Math.random() * 100),
         }
       ]
     },
@@ -1584,21 +1626,25 @@ const initProcessScoreCheckDialogTableData = () => {
       id: "3",
       name: '下套管作业',
       value1: 0.084,
+      value1score: Math.ceil(Math.random() * 100),
       children: [
         {
           id: "3.1",
           name: '套管居中度',
           value2: 0.541,
+          value2score: Math.ceil(Math.random() * 100),
         },
         {
           id: "3.2",
           name: '人工井底距油层底界',
           value2: 0.264,
+          value2score: Math.ceil(Math.random() * 100),
         },
         {
           id: "3.3",
           name: '油井阻流环与浮鞋间距',
           value2: 0.195,
+          value2score: Math.ceil(Math.random() * 100),
         }
       ]
     },
@@ -1606,101 +1652,121 @@ const initProcessScoreCheckDialogTableData = () => {
       id: "4",
       name: '固井施工',
       value1: 0.341,
+      value1score: Math.ceil(Math.random() * 100),
       children: [
         {
           id: "4.1",
           name: '前置液体积量占裸眼环空高度',
           value2: 0.0581,
+          value2score: Math.ceil(Math.random() * 100),
         },
         {
           id: "4.2",
           name: '前置液紊流接触时间',
           value2: 0.0745,
+          value2score: Math.ceil(Math.random() * 100),
         },
         {
           id: "4.3",
           name: '浆柱密度差',
           value2: 0.0431,
+          value2score: Math.ceil(Math.random() * 100),
         },
         {
           id: "4.4",
           name: '隔离液在循环温度下动塑比',
           value2: 0.0325,
+          value2score: Math.ceil(Math.random() * 100),
         },
         {
           id: "4.5",
           name: '隔离液滤失量',
           value2: 0.024,
+          value2score: Math.ceil(Math.random() * 100),
         },
         {
           id: "4.6",
           name: '水泥浆密度记录偏差',
           value2: 0.0479,
+          value2score: Math.ceil(Math.random() * 100),
         },
         {
           id: "4.7",
           name: '测量记录间隔',
           value2: 0.0311,
+          value2score: Math.ceil(Math.random() * 100),
         },
         {
           id: "4.8",
           name: '中停时间',
           value2: 0.0795,
+          value2score: Math.ceil(Math.random() * 100),
         },
         {
           id: "4.9",
           name: '施工参数（排量、压力、水泥浆密度、注入量等）记录',
           value2: 0.0341,
+          value2score: Math.ceil(Math.random() * 100),
         },
         {
           id: "4.10",
           name: '胶塞入井',
           value2: 0.0727,
+          value2score: Math.ceil(Math.random() * 100),
         },
         {
           id: "4.11",
           name: '替量符合固井施工设计要求',
           value2: 0.103,
+          value2score: Math.ceil(Math.random() * 100),
         },
         {
           id: "4.12",
           name: '顶替过程连续',
           value2: 0.0705,
+          value2score: Math.ceil(Math.random() * 100),
         },
         {
           id: "4.13",
           name: '压力有监控记录',
           value2: 0.0205,
+          value2score: Math.ceil(Math.random() * 100),
         },
         {
           id: "4.14",
           name: '排量有监控记录',
           value2: 0.0235,
+          value2score: Math.ceil(Math.random() * 100),
         },
         {
           id: "4.15",
           name: '井口返出情况有监控记录',
           value2: 0.0282,
+          value2score: Math.ceil(Math.random() * 100),
         },
         {
           id: "4.16",
           name: '碰压',
           value2: 0.063,
+          value2score: Math.ceil(Math.random() * 100),
         },
         {
           id: "4.17",
           name: '无碰压现象，顶替量－设计顶替量',
           value2: 0.0691,
+          value2score: Math.ceil(Math.random() * 100),
         },
         {
           id: "4.18",
           name: '小排量碰压，碰压附加值',
           value2: 0.033,
+          value2score: Math.ceil(Math.random() * 100),
         },
         {
           id: "4.19",
           name: '下胶塞清水静压穿透压力',
           value2: 0.0161,
+          value2score: Math.ceil(Math.random() * 100),
         }
       ]
     },
@@ -1708,21 +1774,25 @@ const initProcessScoreCheckDialogTableData = () => {
       id: "5",
       name: '水泥浆返高',
       value1: 0.203,
+      value1score: Math.ceil(Math.random() * 100),
       children: [
         {
           id: "5.1",
           name: '表层套管',
           value2: 0.144,
+          value2score: Math.ceil(Math.random() * 100),
         },
         {
           id: "5.2",
           name: '技术套管',
           value2: 0.281,
+          value2score: Math.ceil(Math.random() * 100),
         },
         {
           id: "5.3",
           name: '生产套管',
           value2: 0.575,
+          value2score: Math.ceil(Math.random() * 100),
         }
       ]
     }
@@ -1990,7 +2060,7 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
+<style scoped lang="less">
 .app-container {
   margin: 0 auto;
   padding: 20px;
@@ -2108,5 +2178,73 @@ onMounted(() => {
 
 .expert-info-item {
   margin-right: 10px;
+}
+
+.total-score {
+  font-size: 16px;
+  font-weight: bold;
+  color: #3385ff;
+}
+
+.weight-table {
+  border-radius: 5px;
+
+  :deep(.el-table__header) {
+    th {
+      border: 1px solid #b3d8ff;
+      border-right: none;
+      border-left: none;
+      background-color: #ecf5ff;
+      color: #303133;
+      font-weight: 600;
+      border-bottom: 2px solid #b3d8ff;
+      border-right: none;
+    }
+  }
+
+  :deep(.el-table__row) {
+    background-color: #fafafa;
+
+    &:hover {
+      background-color: #f0f0f0 !important;
+    }
+
+    :deep(.el-table__body) {
+      td {
+        border-bottom: 2px solid #b3d8ff;
+        border-right: none;
+      }
+    }
+  }
+}
+
+/* 一级权重较基准值颜色 */
+.level-one-weight-base {
+  color: #3385ff;
+  font-weight: bold;
+}
+
+/* 二级权重较基准值颜色 */
+.level-two-weight-base {
+  color: #3385ff;
+  font-weight: bold;
+}
+
+/* 一级权重得分颜色 */
+.level-one-weight {
+  color: #999999;
+}
+
+/* 二级权重得分颜色 */
+.level-two-weight {
+  color: #999999;
+}
+
+.level-one-name {
+  font-weight: bold;
+}
+
+.level-two-name {
+  font-weight: bold;
 }
 </style>
