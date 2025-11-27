@@ -4,22 +4,22 @@
     <header class="top-bar">
       <div class="logo-area">
         <img src="../assets/indexlogo.png" alt="logo" class="logo" />
-        <span class="company-name">川庆钻探长庆固井公司</span>
+        <span class="company-name">XX公司钻探XX地区固井公司</span>
         <span class="system-name">固井全流程管控平台</span>
         <span class="notice-badge">20</span>
       </div>
       <div class="top-menu">
         <img src="../assets/index1.png" alt="" class="menu-img" />
-        <a href="#" class="menu-item">数字长庆固井</a>
+        <a href="#" class="menu-item">数字XX地区固井</a>
         <img src="../assets/index2.png" alt="" class="menu-img" />
-        <a href="#" class="menu-item">川庆EISC</a>
+        <a href="#" class="menu-item">XX公司EISC</a>
         <img src="../assets/index3.png" alt="" class="menu-img" />
         <a href="#" class="menu-item">创新论坛</a>
         <img src="../assets/index4.png" alt="" class="menu-img" />
         <img src="../assets/index5.png" alt="" class="menu-img" />
         <div class="user-area">
           <img src="../assets/index6.png" alt="user" class="user-avatar" />
-          <span class="user-name">创新平</span>
+          <span class="user-name">管理员</span>
         </div>
       </div>
     </header>

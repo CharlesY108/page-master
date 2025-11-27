@@ -343,7 +343,7 @@ const tableDataDetail = ref([
   },
   {
     serial: 10,
-    projectDept: '苏里格',
+    projectDept: '五部',
     projectGroup: '三组',
     wellType: '直井',
     wellCategory: '油井',
@@ -622,7 +622,7 @@ const initCharts = () => {
     grid: { left: "3%", right: "10%", bottom: "3%", containLabel: true },
     xAxis: {
       type: "category",
-      data: ["一部", "二部", "三部", "四部", "苏里格", "整体"],
+      data: ["一部", "二部", "三部", "四部", "五部", "整体"],
       name: "项目部",
     },
     yAxis: {
@@ -659,7 +659,7 @@ const initCharts = () => {
         二部: true,
         三部: true,
         四部: true,
-        苏里格: true,
+        五部: true,
       },
     },
     series: [
@@ -700,7 +700,7 @@ const initCharts = () => {
           { value: 5, name: "二部", label: { color: "#5dd5a5" } },
           { value: 8, name: "三部", label: { color: "#5c6f8d" } },
           { value: 7, name: "四部", label: { color: "#5adbf6" } },
-          { value: 10, name: "苏里格", label: { color: "#f1bc18" } },
+          { value: 10, name: "五部", label: { color: "#f1bc18" } },
         ],
       },
       {
@@ -752,7 +752,7 @@ const initCharts = () => {
           { value: 5, name: "二部", itemStyle: { color: "#5dd5a5" } },
           { value: 8, name: "三部", itemStyle: { color: "#5c6f8d" } },
           { value: 7, name: "四部", itemStyle: { color: "#5adbf6" } },
-          { value: 10, name: "苏里格", itemStyle: { color: "#f1bc18" } },
+          { value: 10, name: "五部", itemStyle: { color: "#f1bc18" } },
         ],
       },
     ],
@@ -771,7 +771,7 @@ const initCharts = () => {
         二部: true,
         三部: true,
         四部: true,
-        苏里格: true,
+        五部: true,
       },
     },
     series: [
@@ -812,7 +812,7 @@ const initCharts = () => {
           { value: 325, name: "二部", label: { color: "#5dd5a5" } },
           { value: 528, name: "三部", label: { color: "#5c6f8d" } },
           { value: 107, name: "四部", label: { color: "#5adbf6" } },
-          { value: 210, name: "苏里格", label: { color: "#f1bc18" } },
+          { value: 210, name: "五部", label: { color: "#f1bc18" } },
         ],
       },
       {
@@ -864,7 +864,7 @@ const initCharts = () => {
           { value: 325, name: "二部", itemStyle: { color: "#5dd5a5" } },
           { value: 528, name: "三部", itemStyle: { color: "#5c6f8d" } },
           { value: 107, name: "四部", itemStyle: { color: "#5adbf6" } },
-          { value: 210, name: "苏里格", itemStyle: { color: "#f1bc18" } },
+          { value: 210, name: "五部", itemStyle: { color: "#f1bc18" } },
         ],
       },
     ],
@@ -877,7 +877,7 @@ const initCharts = () => {
     grid: { left: "3%", right: "4%", bottom: "3%", containLabel: true },
     xAxis: {
       type: "category",
-      data: ["一部", "二部", "三部", "四部", "苏里格"],
+      data: ["一部", "二部", "三部", "四部", "五部"],
     },
     yAxis: { type: "value", name: "合格率(%)", max: 100 },
     series: [
@@ -910,7 +910,7 @@ const initCharts = () => {
     grid: { left: "3%", right: "4%", bottom: "3%", containLabel: true },
     xAxis: {
       type: "category",
-      data: ["一部", "二部", "三部", "四部", "苏里格"],
+      data: ["一部", "二部", "三部", "四部", "五部"],
     },
     yAxis: { type: "value", name: "不合格井数" },
     series: [
@@ -944,7 +944,7 @@ const initCharts = () => {
     { value: 15, name: "二部-红线1", itemStyle: { color: "#5dd5a5" } },
     { value: 25, name: "三部-红线1", itemStyle: { color: "#5c6f8d" } },
     { value: 12, name: "四部-红线1", itemStyle: { color: "#5adbf6" } },
-    { value: 10, name: "苏里格-红线1", itemStyle: { color: "#faad14" } },
+    { value: 10, name: "五部-红线1", itemStyle: { color: "#faad14" } },
   ];
   
   controlItemQualificationChart.setOption({

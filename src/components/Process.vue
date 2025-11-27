@@ -9,7 +9,7 @@
           <el-option label="二部" value="二部" />
           <el-option label="三部" value="三部" />
           <el-option label="四部" value="四部" />
-          <el-option label="苏里格" value="苏里格" />
+          <el-option label="五部" value="五部" />
         </el-select>
       </el-form-item>
 
@@ -35,9 +35,9 @@
       <el-form-item label="甲方项目组">
         <el-select v-model="filters.clientGroup" placeholder="全部" clearable style="width: 120px;">
           <el-option label="全部" value="" />
-          <el-option label="陇东页岩油" value="陇东页岩油" />
-          <el-option label="苏里格天然气" value="苏里格天然气" />
-          <el-option label="玉门油田" value="玉门油田" />
+          <el-option label="z页岩油" value="z页岩油" />
+          <el-option label="五部天然气" value="五部天然气" />
+          <el-option label="z油田" value="z油田" />
         </el-select>
       </el-form-item>
 

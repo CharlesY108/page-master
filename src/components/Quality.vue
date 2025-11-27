@@ -9,7 +9,7 @@
           <el-option label="二部" value="二部" />
           <el-option label="三部" value="三部" />
           <el-option label="四部" value="四部" />
-          <el-option label="苏里格" value="苏里格" />
+          <el-option label="五部" value="五部" />
         </el-select>
       </el-form-item>
 
@@ -24,19 +24,19 @@
       <el-form-item label="井号" label-width="100px">
         <el-select v-model="filters.wellNo" placeholder="全部" style="width: 120px;">
           <el-option label="全部" value="" />
-          <el-option label="环H9-3" value="环H9-3" />
-          <el-option label="环H9-1" value="环H9-1" />
-          <el-option label="桃2-13-3" value="桃2-13-3" />
+          <el-option label="z9-3" value="z9-3" />
+          <el-option label="z9-1" value="z9-1" />
+          <el-option label="z2-13-3" value="z2-13-3" />
         </el-select>
       </el-form-item>
 
       <el-form-item label="甲方项目组" label-width="100px">
         <el-select v-model="filters.clientGroup" placeholder="全部" style="width: 120px;">
           <el-option label="全部" value="" />
-          <el-option label="陇东页岩油" value="陇东页岩油" />
-          <el-option label="苏里格天然气" value="苏里格天然气" />
-          <el-option label="玉门油田" value="玉门油田" />
-          <el-option label="采油一厂" value="采油一厂" />
+          <el-option label="z页岩油" value="z页岩油" />
+          <el-option label="五部天然气" value="五部天然气" />
+          <el-option label="z油田" value="z油田" />
+          <el-option label="z" value="z" />
         </el-select>
       </el-form-item>
 
@@ -109,7 +109,7 @@
           <el-option label="二部" value="二部" />
           <el-option label="三部" value="三部" />
           <el-option label="四部" value="四部" />
-          <el-option label="苏里格" value="苏里格" />
+          <el-option label="五部" value="五部" />
         </el-select>
       </el-form-item>
 
@@ -224,8 +224,8 @@ const totalCount = ref(951);
 const tableData = ref([
   {
     index: 1,
-    wellNo: '环H9-3',
-    clientUnit: '陇东页岩油',
+    wellNo: 'z9-3',
+    clientUnit: 'z页岩油',
     dept: '二部',
     wellType: '油开井',
     wellModel: '水平井',
@@ -247,8 +247,8 @@ const tableData = ref([
   },
   {
     index: 2,
-    wellNo: '环H9-1',
-    clientUnit: '陇东页岩油',
+    wellNo: 'z9-1',
+    clientUnit: 'z页岩油',
     dept: '二部',
     wellType: '油开井',
     wellModel: '水平井',
@@ -270,9 +270,9 @@ const tableData = ref([
   },
   {
     index: 3,
-    wellNo: '桃2-13-3',
-    clientUnit: '苏里格天然气',
-    dept: '苏里格',
+    wellNo: 'z2-13-3',
+    clientUnit: '五部天然气',
+    dept: '五部',
     wellType: '气开井',
     wellModel: '定向井',
     teamNo: '招标队',
@@ -293,8 +293,8 @@ const tableData = ref([
   },
   {
     index: 4,
-    wellNo: '乐H31-1',
-    clientUnit: '陇东页岩油',
+    wellNo: 'z31-1',
+    clientUnit: 'z页岩油',
     dept: '二部',
     wellType: '油开井',
     wellModel: '水平井',
@@ -316,9 +316,9 @@ const tableData = ref([
   },
   {
     index: 5,
-    wellNo: '苏47-33-37',
-    clientUnit: '苏里格天然气',
-    dept: '苏里格',
+    wellNo: 'XX47-33-37',
+    clientUnit: '五部天然气',
+    dept: '五部',
     wellType: '气开井',
     wellModel: '定向井',
     teamNo: '招标队',
@@ -339,8 +339,8 @@ const tableData = ref([
   },
   {
     index: 6,
-    wellNo: '庆H26-3',
-    clientUnit: '陇东页岩油',
+    wellNo: 'z26-3',
+    clientUnit: 'z页岩油',
     dept: '二部',
     wellType: '油开井',
     wellModel: '水平井',
@@ -362,8 +362,8 @@ const tableData = ref([
   },
   {
     index: 7,
-    wellNo: '安探1H',
-    clientUnit: '玉门油田',
+    wellNo: 'z1H',
+    clientUnit: 'z油田',
     dept: '四部',
     wellType: '气开井',
     wellModel: '水平井',
@@ -385,8 +385,8 @@ const tableData = ref([
   },
   {
     index: 8,
-    wellNo: '塞6-77-23H',
-    clientUnit: '采油一厂',
+    wellNo: 'z-77-23H',
+    clientUnit: 'z',
     dept: '一部',
     wellType: '油开井',
     wellModel: '水平井',
@@ -408,8 +408,8 @@ const tableData = ref([
   },
   {
     index: 9,
-    wellNo: '华H69-1',
-    clientUnit: '陇东页岩油',
+    wellNo: 'z69-1',
+    clientUnit: 'z页岩油',
     dept: '二部',
     wellType: '油开井',
     wellModel: '水平井',
@@ -431,8 +431,8 @@ const tableData = ref([
   },
   {
     index: 10,
-    wellNo: '庆H48-3',
-    clientUnit: '陇东页岩油',
+    wellNo: 'z48-3',
+    clientUnit: 'z页岩油',
     dept: '二部',
     wellType: '油开井',
     wellModel: '水平井',

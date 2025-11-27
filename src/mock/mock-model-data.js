@@ -70,7 +70,7 @@ export const mockModelData = {
         }
       },
       {
-        JingHao: '庄平364-365-14',
+        JingHao: 'XX平364-365-14',
         shap_values: {
           WeiJiang_LiuXingZhiShu: -2.41,
           WeiJiang_ChouDuXiShu: -1.99,
@@ -242,7 +242,7 @@ export const mockModelData = {
         }
       },
       {
-        JingHao: '庄51-15-591H',
+        JingHao: 'XX51-15-591H',
         shap_values: {
           WeiJiang_LiuXingZhiShu: 0.69,
           WeiJiang_ChouDuXiShu: 0.62,
@@ -844,7 +844,7 @@ export const mockModelData = {
         }
       },
       {
-        JingHao: '华H135-7',
+        JingHao: 'z135-7',
         shap_values: {
           WeiJiang_LiuXingZhiShu: 0.57,
           WeiJiang_ChouDuXiShu: 0.6,
@@ -1618,7 +1618,7 @@ export const mockModelData = {
         }
       },
       {
-        JingHao: '庄51-14-572H',
+        JingHao: 'XX51-14-572H',
         shap_values: {
           WeiJiang_LiuXingZhiShu: 0.67,
           WeiJiang_ChouDuXiShu: 0.62,
@@ -2005,7 +2005,7 @@ export const mockModelData = {
         }
       },
       {
-        JingHao: '庄51-20-27',
+        JingHao: 'XX51-20-27',
         shap_values: {
           WeiJiang_LiuXingZhiShu: 0.68,
           WeiJiang_ChouDuXiShu: 0.64,
@@ -2521,7 +2521,7 @@ export const mockModelData = {
         }
       },
       {
-        JingHao: '庄279-51',
+        JingHao: 'XX279-51',
         shap_values: {
           WeiJiang_LiuXingZhiShu: 0.58,
           WeiJiang_ChouDuXiShu: 0.59,
@@ -2607,7 +2607,7 @@ export const mockModelData = {
         }
       },
       {
-        JingHao: '庄平364-364-16',
+        JingHao: 'XX平364-364-16',
         shap_values: {
           WeiJiang_LiuXingZhiShu: 0.69,
           WeiJiang_ChouDuXiShu: 0.62,
@@ -2994,7 +2994,7 @@ export const mockModelData = {
         }
       },
       {
-        JingHao: '华H19-7',
+        JingHao: 'z19-7',
         shap_values: {
           WeiJiang_LiuXingZhiShu: 0.66,
           WeiJiang_ChouDuXiShu: 0.66,

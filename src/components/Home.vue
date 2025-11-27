@@ -6,7 +6,7 @@
       <!-- 固井流程节点管控预警 -->
       <section class="panel panel_1">
         <div class="panel-header">
-          <img src="../assets/index13.png" alt="" class="panel-icon"/>
+          <img src="../assets/index13.png" alt="" class="panel-icon" />
           <h3 class="panel-title">固井流程节点管控预警</h3>
         </div>
         <div class="chart-container">
@@ -17,17 +17,13 @@
       <!-- 重点项目管控预警 -->
       <section class="panel panel_1">
         <div class="panel-header">
-          <img src="../assets/index13.png" alt="" class="panel-icon"/>
+          <img src="../assets/index13.png" alt="" class="panel-icon" />
           <h3 class="panel-title">重点项目管控预警</h3>
         </div>
         <div class="tab-header">
-          <button 
-          v-for="dept in departments" 
-          :key="dept"
-          class="tab-btn" 
-          :class="{ active: activeDept === dept }"
-          @click="switchDepartment(dept)">
-          {{ dept }}</button>
+          <button v-for="dept in departments" :key="dept" class="tab-btn" :class="{ active: activeDept === dept }"
+            @click="switchDepartment(dept)">
+            {{ dept }}</button>
         </div>
         <div class="table-container">
           <table class="data-table compact-table">
@@ -44,7 +40,7 @@
                 <td>{{ item.unit }}</td>
                 <td>{{ item.warning }}</td>
                 <td>{{ item.handled }}</td>
-                <td :class="{'highlight-red': item.rate < 100}">{{ item.rate }}%</td>
+                <td :class="{ 'highlight-red': item.rate < 100 }">{{ item.rate }}%</td>
               </tr>
             </tbody>
           </table>
@@ -54,17 +50,13 @@
       <!-- 一类井升级管控井预警 -->
       <section class="panel panel_1">
         <div class="panel-header">
-          <img src="../assets/index13.png" alt="" class="panel-icon"/>
+          <img src="../assets/index13.png" alt="" class="panel-icon" />
           <h3 class="panel-title">一类井升级管控井预警</h3>
         </div>
         <div class="tab-header">
-          <button
-          v-for="dept in wellDepartments"
-          :key="dept"
-          class="tab-btn"
-          :class="{ active: activeWellDept  === dept}"
-          @click="switchWellDepartment(dept)">
-        {{ dept }}</button>
+          <button v-for="dept in wellDepartments" :key="dept" class="tab-btn"
+            :class="{ active: activeWellDept === dept }" @click="switchWellDepartment(dept)">
+            {{ dept }}</button>
         </div>
         <div class="table-container">
           <table class="data-table compact-table">
@@ -83,7 +75,7 @@
                 <td>{{ item.wellNo }}</td>
                 <td>{{ item.warning }}</td>
                 <td>{{ item.handled }}</td>
-                <td :class="{'highlight-red': item.rate < 100}">{{ item.rate }}%</td>
+                <td :class="{ 'highlight-red': item.rate < 100 }">{{ item.rate }}%</td>
               </tr>
             </tbody>
           </table>
@@ -94,35 +86,27 @@
     <!-- 中列 - 宽度 2fr -->
     <div class="middle-column">
       <!-- 今日生产动态 -->
-      <section class="panel panel_2" >
+      <section class="panel panel_2">
         <div class="tab-header">
-          <button 
-            class="tab-btn" 
-            :class="{ active: activeProductionTab === 'dynamic' }"
+          <button class="tab-btn" :class="{ active: activeProductionTab === 'dynamic' }"
             @click="switchProductionTab('dynamic')">
             今日生产动态
           </button>
-          <button 
-            class="tab-btn"
-            :class="{ active: activeProductionTab === 'control' }"
+          <button class="tab-btn" :class="{ active: activeProductionTab === 'control' }"
             @click="switchProductionTab('control')">
             今日一类井升级管控井
           </button>
         </div>
         <div class="stat-cards">
           <div class="stat-card" v-for="item in currentStatCards" :key="item.label">
-            <img :src="item.icon" height="30px" alt=""/>
+            <img :src="item.icon" height="30px" alt="" />
             <div class="stat-value">{{ item.value }}</div>
             <div class="stat-label">{{ item.label }}</div>
           </div>
         </div>
         <div class="tab-header">
-          <button 
-            v-for="dept in productionDepartments"
-            :key="dept"
-            class="tab-btn"
-            :class="{ active: activeProductionDept === dept }"
-            @click="switchProductionDepartment(dept)">
+          <button v-for="dept in productionDepartments" :key="dept" class="tab-btn"
+            :class="{ active: activeProductionDept === dept }" @click="switchProductionDepartment(dept)">
             {{ dept }}
           </button>
         </div>
@@ -167,18 +151,14 @@
       <!-- 固井全流程要素考核 -->
       <section class="panel panel_1">
         <div class="panel-header">
-          <img src="../assets/index13.png" alt="" class="panel-icon"/>
+          <img src="../assets/index13.png" alt="" class="panel-icon" />
           <h3 class="panel-title">固井全流程要素考核</h3>
           <div class="tab-header tab_right">
-          <button 
-              v-for="dept in assessmentDepartments"
-              :key="dept"
-              class="tab-btn"
-              :class="{ active: activeAssessmentDept === dept }"
-              @click="switchAssessmentDepartment(dept)">
+            <button v-for="dept in assessmentDepartments" :key="dept" class="tab-btn"
+              :class="{ active: activeAssessmentDept === dept }" @click="switchAssessmentDepartment(dept)">
               {{ dept }}
             </button>
-        </div>
+          </div>
         </div>
         <div class="table-container">
           <table class="data-table">
@@ -222,7 +202,7 @@
       <!-- 关键控制项不合格井分布 -->
       <section class="panel panel_1">
         <div class="panel-header">
-          <img src="../assets/index13.png" alt="" class="panel-icon"/>
+          <img src="../assets/index13.png" alt="" class="panel-icon" />
           <h3 class="panel-title">关键控制项不合格井分布</h3>
         </div>
         <div class="chart-container-wrapper">
@@ -231,7 +211,7 @@
           </div>
           <div class="chart-legend">
             <div class="legend-item" v-for="(item, index) in wellDistributionData" :key="index">
-              <span class="legend-color" :style="{backgroundColor: item.color}"></span>
+              <span class="legend-color" :style="{ backgroundColor: item.color }"></span>
               <span class="legend-label">{{ item.label }}</span>
               <span class="legend-value">{{ item.value }}</span>
             </div>
@@ -242,7 +222,7 @@
       <!-- 关键控制项不合格要素分布 -->
       <section class="panel panel_1">
         <div class="panel-header">
-          <img src="../assets/index13.png" alt="" class="panel-icon"/>
+          <img src="../assets/index13.png" alt="" class="panel-icon" />
           <h3 class="panel-title">关键控制项不合格要素分布</h3>
         </div>
         <div class="chart-container-wrapper">
@@ -251,7 +231,7 @@
           </div>
           <div class="chart-legend">
             <div class="legend-item" v-for="(item, index) in factorDistributionData" :key="index">
-              <span class="legend-color" :style="{backgroundColor: item.color}"></span>
+              <span class="legend-color" :style="{ backgroundColor: item.color }"></span>
               <span class="legend-label">{{ item.label }}</span>
               <span class="legend-value">{{ item.value }}</span>
             </div>
@@ -262,12 +242,13 @@
       <!-- 专家预案处理 -->
       <section class="panel panel_1">
         <div class="panel-header">
-          <img src="../assets/index13.png" alt="" class="panel-icon"/>
+          <img src="../assets/index13.png" alt="" class="panel-icon" />
           <h3 class="panel-title">专家预案处理</h3>
         </div>
         <div class="plan-list">
           <div class="plan-item" v-for="item in planData" :key="item.id">
-            <div class="plan-title">施工参数预警（井号：{{ item.wellNo }}）<span class="status-badge">{{ item.status }}</span></div>
+            <div class="plan-title">施工参数预警（井号：{{ item.wellNo }}）<span class="status-badge">{{ item.status }}</span>
+            </div>
             <div class="plan-detail">
               <p>报警原因：{{ item.reason }}</p>
               <p>报警时间：{{ item.time }}</p>
@@ -285,13 +266,13 @@ import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);
 
 // 部门列表
-const departments = ref(['公司', '一部', '二部', '三部', '四部', '苏里格']);
-const wellDepartments = ref(['公司', '一部', '二部', '三部', '四部', '苏里格']);
-const productionDepartments = ref(['公司', '一部', '二部', '三部', '四部', '苏里格']);
-const assessmentDepartments = ref(['公司', '一部', '二部', '三部', '四部', '苏里格']);
+const departments = ref(['公司', '一部', '二部', '三部', '四部', '五部']);
+const wellDepartments = ref(['公司', '一部', '二部', '三部', '四部', '五部']);
+const productionDepartments = ref(['公司', '一部', '二部', '三部', '四部', '五部']);
+const assessmentDepartments = ref(['公司', '一部', '二部', '三部', '四部', '五部']);
 // 当前选中的部门
 const activeDept = ref('公司');
-const activeWellDept  = ref('公司');
+const activeWellDept = ref('公司');
 const activeProductionDept = ref('公司');
 const activeAssessmentDept = ref('公司');
 const activeProductionTab = ref('dynamic');
@@ -300,37 +281,37 @@ const allProjectData = ref({
   '公司': [
     { unit: '取心井', warning: 2, handled: 0, rate: 0 },
     { unit: '超长一体化', warning: 1, handled: 1, rate: 100 },
-    { unit: '苏里格气井', warning: 0, handled: 0, rate: 0 },
+    { unit: '五部气井', warning: 0, handled: 0, rate: 0 },
     { unit: '采油厂高气', warning: 2, handled: 1, rate: 50 },
   ],
   '一部': [
     { unit: '取心井', warning: 1, handled: 0, rate: 0 },
     { unit: '超长一体化', warning: 0, handled: 0, rate: 0 },
-    { unit: '苏里格气井', warning: 1, handled: 1, rate: 100 },
+    { unit: '五部气井', warning: 1, handled: 1, rate: 100 },
     { unit: '采油厂高气', warning: 1, handled: 0, rate: 0 },
   ],
   '二部': [
     { unit: '取心井', warning: 0, handled: 0, rate: 0 },
     { unit: '超长一体化', warning: 1, handled: 1, rate: 100 },
-    { unit: '苏里格气井', warning: 2, handled: 1, rate: 50 },
+    { unit: '五部气井', warning: 2, handled: 1, rate: 50 },
     { unit: '采油厂高气', warning: 0, handled: 0, rate: 0 },
   ],
   '三部': [
     { unit: '取心井', warning: 1, handled: 1, rate: 100 },
     { unit: '超长一体化', warning: 0, handled: 0, rate: 0 },
-    { unit: '苏里格气井', warning: 1, handled: 0, rate: 0 },
+    { unit: '五部气井', warning: 1, handled: 0, rate: 0 },
     { unit: '采油厂高气', warning: 1, handled: 1, rate: 100 },
   ],
   '四部': [
     { unit: '取心井', warning: 0, handled: 0, rate: 0 },
     { unit: '超长一体化', warning: 0, handled: 0, rate: 0 },
-    { unit: '苏里格气井', warning: 1, handled: 1, rate: 100 },
+    { unit: '五部气井', warning: 1, handled: 1, rate: 100 },
     { unit: '采油厂高气', warning: 1, handled: 0, rate: 0 },
   ],
-  '苏里格': [
+  '五部': [
     { unit: '取心井', warning: 0, handled: 0, rate: 0 },
     { unit: '超长一体化', warning: 0, handled: 0, rate: 0 },
-    { unit: '苏里格气井', warning: 3, handled: 2, rate: 67 },
+    { unit: '五部气井', warning: 3, handled: 2, rate: 67 },
     { unit: '采油厂高气', warning: 0, handled: 0, rate: 0 },
   ]
 });
@@ -338,35 +319,35 @@ const allProjectData = ref({
 // 模拟数据：一类井升级井管控
 const allWellData = ref({
   '公司': [
-    { unit: '放顶页油', wellNo: '庄52-19', warning: 2, handled: 1, rate: 50 },
-    { unit: '放顶页油', wellNo: '庄44-3', warning: 2, handled: 1, rate: 50 },
-    { unit: '放顶页油', wellNo: '庄44-1', warning: 2, handled: 1, rate: 50 },
-    { unit: '放顶页油', wellNo: '庄51-1', warning: 2, handled: 1, rate: 50 },
+    { unit: '放顶页油', wellNo: 'XX52-19', warning: 2, handled: 1, rate: 50 },
+    { unit: '放顶页油', wellNo: 'XX44-3', warning: 2, handled: 1, rate: 50 },
+    { unit: '放顶页油', wellNo: 'XX44-1', warning: 2, handled: 1, rate: 50 },
+    { unit: '放顶页油', wellNo: 'XX51-1', warning: 2, handled: 1, rate: 50 },
   ],
   '一部': [
-    { unit: '一部', wellNo: '庄52-19', warning: 1, handled: 1, rate: 100 },
-    { unit: '一部', wellNo: '庄44-3', warning: 2, handled: 1, rate: 50 },
-    { unit: '一部', wellNo: '庄44-1', warning: 1, handled: 0, rate: 0 },
+    { unit: '一部', wellNo: 'XX52-19', warning: 1, handled: 1, rate: 100 },
+    { unit: '一部', wellNo: 'XX44-3', warning: 2, handled: 1, rate: 50 },
+    { unit: '一部', wellNo: 'XX44-1', warning: 1, handled: 0, rate: 0 },
   ],
   '二部': [
-    { unit: '二部', wellNo: '黄221-205-2', warning: 3, handled: 2, rate: 67 },
-    { unit: '二部', wellNo: '庄64-3', warning: 1, handled: 1, rate: 100 },
-    { unit: '二部', wellNo: '苏42-13-101H', warning: 2, handled: 1, rate: 50 },
+    { unit: '二部', wellNo: 'z221-205-2', warning: 3, handled: 2, rate: 67 },
+    { unit: '二部', wellNo: 'XX64-3', warning: 1, handled: 1, rate: 100 },
+    { unit: '二部', wellNo: 'XX42-13-101H', warning: 2, handled: 1, rate: 50 },
   ],
   '三部': [
-    { unit: '三部', wellNo: '庄54-101', warning: 2, handled: 2, rate: 100 },
-    { unit: '三部', wellNo: '苏25-41', warning: 1, handled: 0, rate: 0 },
-    { unit: '三部', wellNo: '庄51-16-2', warning: 2, handled: 1, rate: 50 },
+    { unit: '三部', wellNo: 'XX54-101', warning: 2, handled: 2, rate: 100 },
+    { unit: '三部', wellNo: 'XX25-41', warning: 1, handled: 0, rate: 0 },
+    { unit: '三部', wellNo: 'XX51-16-2', warning: 2, handled: 1, rate: 50 },
   ],
   '四部': [
-    { unit: '四部', wellNo: '庄44-5', warning: 1, handled: 1, rate: 100 },
-    { unit: '四部', wellNo: '庄44-7', warning: 2, handled: 1, rate: 50 },
-    { unit: '四部', wellNo: '庄44-9', warning: 1, handled: 1, rate: 100 },
+    { unit: '四部', wellNo: 'XX44-5', warning: 1, handled: 1, rate: 100 },
+    { unit: '四部', wellNo: 'XX44-7', warning: 2, handled: 1, rate: 50 },
+    { unit: '四部', wellNo: 'XX44-9', warning: 1, handled: 1, rate: 100 },
   ],
-  '苏里格': [
-    { unit: '苏里格', wellNo: '苏42-13-101H', warning: 3, handled: 2, rate: 67 },
-    { unit: '苏里格', wellNo: '苏25-41', warning: 2, handled: 1, rate: 50 },
-    { unit: '苏里格', wellNo: '苏42-15-102H', warning: 1, handled: 1, rate: 100 },
+  '五部': [
+    { unit: '五部', wellNo: 'XX42-13-101H', warning: 3, handled: 2, rate: 67 },
+    { unit: '五部', wellNo: 'XX25-41', warning: 2, handled: 1, rate: 50 },
+    { unit: '五部', wellNo: 'XX42-15-102H', warning: 1, handled: 1, rate: 100 },
   ]
 });
 
@@ -416,7 +397,7 @@ const allStatCards = ref({
     { label: '工序结束', value: 6, icon: getImageUrl('index18.png') },
     { label: '施工结束', value: 10, icon: getImageUrl('index19.png') },
   ],
-  '苏里格': [
+  '五部': [
     { label: '待出车', value: 2, icon: getImageUrl('index14.png') },
     { label: '上升途中', value: 3, icon: getImageUrl('index15.png') },
     { label: '到井待施工', value: 5, icon: getImageUrl('index16.png') },
@@ -427,393 +408,393 @@ const allStatCards = ref({
 });
 
 // 模拟数据：井列表
-const allWellList  = ref({
+const allWellList = ref({
   '公司': [
     {
-      type: '直',wellNo: '庄54-101',projectName: '采油十二厂',wellType: '忽斜井',wellModel: '注水井',
-      taskType: '造斜井',depth: '1198.1',horizontalLength: '',progress: 60,status: '正在施工',
+      type: '直', wellNo: 'XX54-101', projectName: '采油十二厂', wellType: '忽斜井', wellModel: '注水井',
+      taskType: '造斜井', depth: '1198.1', horizontalLength: '', progress: 60, status: '正在施工',
     },
     {
-      type: '直',wellNo: '黄221-205-2',projectName: '采油十厂',wellType: '大斜度井',wellModel: '油井',
-      taskType: '造斜井',depth: '4218.1',horizontalLength: '',progress: 60,status: '正在施工',
+      type: '直', wellNo: 'z221-205-2', projectName: '采油十厂', wellType: '大斜度井', wellModel: '油井',
+      taskType: '造斜井', depth: '4218.1', horizontalLength: '', progress: 60, status: '正在施工',
     },
     {
-      type: '压',wellNo: '庄64-3',projectName: '采油一厂',wellType: '空井筒',wellModel: '气井',
-      taskType: '气井压裂',depth: '4414',horizontalLength: '1311',progress: 60,status: '正在施工',
+      type: '压', wellNo: 'XX64-3', projectName: 'z', wellType: '空井筒', wellModel: '气井',
+      taskType: '气井压裂', depth: '4414', horizontalLength: '1311', progress: 60, status: '正在施工',
     },
     {
-      type: '压',wellNo: '庄64-3',projectName: '采油一厂',wellType: '空井筒',wellModel: '气井',
-      taskType: '气井压裂',depth: '4414',horizontalLength: '1311',progress: 80,status: '正在施工',
+      type: '压', wellNo: 'XX64-3', projectName: 'z', wellType: '空井筒', wellModel: '气井',
+      taskType: '气井压裂', depth: '4414', horizontalLength: '1311', progress: 80, status: '正在施工',
     },
     {
-      type: '压',wellNo: '庄64-3',projectName: '采油一厂',wellType: '空井筒',wellModel: '气井',
-      taskType: '气井压裂',depth: '4414',horizontalLength: '1311',progress: 60,status: '正在施工',
+      type: '压', wellNo: 'XX64-3', projectName: 'z', wellType: '空井筒', wellModel: '气井',
+      taskType: '气井压裂', depth: '4414', horizontalLength: '1311', progress: 60, status: '正在施工',
     },
     {
-      type: '压',wellNo: '苏42-13-101H',projectName: '苏里格天然气',wellType: '水平井',wellModel: '气井',
-      taskType: '气井压裂',depth: '3370',horizontalLength: '',progress: 60,status: '到井待施工',
+      type: '压', wellNo: 'XX42-13-101H', projectName: '五部天然气', wellType: '水平井', wellModel: '气井',
+      taskType: '气井压裂', depth: '3370', horizontalLength: '', progress: 60, status: '到井待施工',
     },
     {
-      type: '压',wellNo: '苏42-13-101H',projectName: '苏里格天然气',wellType: '水平井',wellModel: '气井',
-      taskType: '气井压裂',depth: '3370',horizontalLength: '',progress: 60,status: '到井待施工',
+      type: '压', wellNo: 'XX42-13-101H', projectName: '五部天然气', wellType: '水平井', wellModel: '气井',
+      taskType: '气井压裂', depth: '3370', horizontalLength: '', progress: 60, status: '到井待施工',
     },
     {
-      type: '压',wellNo: '苏25-41',projectName: '采气二厂',wellType: '直井',wellModel: '气井',
-      taskType: '气井',depth: '2810',horizontalLength: '',progress: 20,status: '上升途中',
+      type: '压', wellNo: 'XX25-41', projectName: '采气二厂', wellType: '直井', wellModel: '气井',
+      taskType: '气井', depth: '2810', horizontalLength: '', progress: 20, status: '上升途中',
     },
     {
-      type: '压',wellNo: '庄51-16-2',projectName: '采油十二厂',wellType: '注水井',wellModel: '',
-      taskType: '',depth: '',horizontalLength: '',progress: 20,status: '上升途中',
+      type: '压', wellNo: 'XX51-16-2', projectName: '采油十二厂', wellType: '注水井', wellModel: '',
+      taskType: '', depth: '', horizontalLength: '', progress: 20, status: '上升途中',
     },
     {
-      type: '压',wellNo: '庄51-16-2',projectName: '采油十二厂',wellType: '注水井',wellModel: '',
-      taskType: '',depth: '',horizontalLength: '',progress: 20,status: '上升途中',
+      type: '压', wellNo: 'XX51-16-2', projectName: '采油十二厂', wellType: '注水井', wellModel: '',
+      taskType: '', depth: '', horizontalLength: '', progress: 20, status: '上升途中',
     },
   ],
   '一部': [
     {
-      type: '直',wellNo: '黄221-205-2',projectName: '采油十厂',wellType: '大斜度井',wellModel: '油井',
-      taskType: '造斜井',depth: '4218.1',horizontalLength: '',progress: 60,status: '正在施工',
+      type: '直', wellNo: 'z221-205-2', projectName: '采油十厂', wellType: '大斜度井', wellModel: '油井',
+      taskType: '造斜井', depth: '4218.1', horizontalLength: '', progress: 60, status: '正在施工',
     },
     {
-      type: '直',wellNo: '庄54-101',projectName: '采油十二厂',wellType: '忽斜井',wellModel: '注水井',
-      taskType: '造斜井',depth: '1198.1',horizontalLength: '',progress: 60,status: '正在施工',
+      type: '直', wellNo: 'XX54-101', projectName: '采油十二厂', wellType: '忽斜井', wellModel: '注水井',
+      taskType: '造斜井', depth: '1198.1', horizontalLength: '', progress: 60, status: '正在施工',
     },
     {
-      type: '压',wellNo: '庄64-3',projectName: '采油一厂',wellType: '空井筒',wellModel: '气井',
-      taskType: '气井压裂',depth: '4414',horizontalLength: '1311',progress: 80,status: '正在施工',
+      type: '压', wellNo: 'XX64-3', projectName: 'z', wellType: '空井筒', wellModel: '气井',
+      taskType: '气井压裂', depth: '4414', horizontalLength: '1311', progress: 80, status: '正在施工',
     },
     {
-      type: '压',wellNo: '庄64-3',projectName: '采油一厂',wellType: '空井筒',wellModel: '气井',
-      taskType: '气井压裂',depth: '4414',horizontalLength: '1311',progress: 60,status: '正在施工',
+      type: '压', wellNo: 'XX64-3', projectName: 'z', wellType: '空井筒', wellModel: '气井',
+      taskType: '气井压裂', depth: '4414', horizontalLength: '1311', progress: 60, status: '正在施工',
     },
     {
-      type: '压',wellNo: '苏42-13-101H',projectName: '苏里格天然气',wellType: '水平井',wellModel: '气井',
-      taskType: '气井压裂',depth: '3370',horizontalLength: '',progress: 60,status: '到井待施工',
+      type: '压', wellNo: 'XX42-13-101H', projectName: '五部天然气', wellType: '水平井', wellModel: '气井',
+      taskType: '气井压裂', depth: '3370', horizontalLength: '', progress: 60, status: '到井待施工',
     },
     {
-      type: '压',wellNo: '庄64-3',projectName: '采油一厂',wellType: '空井筒',wellModel: '气井',
-      taskType: '气井压裂',depth: '4414',horizontalLength: '1311',progress: 60,status: '正在施工',
+      type: '压', wellNo: 'XX64-3', projectName: 'z', wellType: '空井筒', wellModel: '气井',
+      taskType: '气井压裂', depth: '4414', horizontalLength: '1311', progress: 60, status: '正在施工',
     },
     {
-      type: '压',wellNo: '苏42-13-101H',projectName: '苏里格天然气',wellType: '水平井',wellModel: '气井',
-      taskType: '气井压裂',depth: '3370',horizontalLength: '',progress: 60,status: '到井待施工',
+      type: '压', wellNo: 'XX42-13-101H', projectName: '五部天然气', wellType: '水平井', wellModel: '气井',
+      taskType: '气井压裂', depth: '3370', horizontalLength: '', progress: 60, status: '到井待施工',
     },
     {
-      type: '压',wellNo: '苏25-41',projectName: '采气二厂',wellType: '直井',wellModel: '气井',
-      taskType: '气井',depth: '2810',horizontalLength: '',progress: 20,status: '上升途中',
+      type: '压', wellNo: 'XX25-41', projectName: '采气二厂', wellType: '直井', wellModel: '气井',
+      taskType: '气井', depth: '2810', horizontalLength: '', progress: 20, status: '上升途中',
     },
     {
-      type: '压',wellNo: '庄51-16-2',projectName: '采油十二厂',wellType: '注水井',wellModel: '',
-      taskType: '',depth: '',horizontalLength: '',progress: 20,status: '上升途中',
+      type: '压', wellNo: 'XX51-16-2', projectName: '采油十二厂', wellType: '注水井', wellModel: '',
+      taskType: '', depth: '', horizontalLength: '', progress: 20, status: '上升途中',
     },
     {
-      type: '压',wellNo: '庄51-16-2',projectName: '采油十二厂',wellType: '注水井',wellModel: '',
-      taskType: '',depth: '',horizontalLength: '',progress: 20,status: '上升途中',
+      type: '压', wellNo: 'XX51-16-2', projectName: '采油十二厂', wellType: '注水井', wellModel: '',
+      taskType: '', depth: '', horizontalLength: '', progress: 20, status: '上升途中',
     },
   ],
   '二部': [
     {
-      type: '直',wellNo: '庄54-101',projectName: '采油十二厂',wellType: '忽斜井',wellModel: '注水井',
-      taskType: '造斜井',depth: '1198.1',horizontalLength: '',progress: 60,status: '正在施工',
+      type: '直', wellNo: 'XX54-101', projectName: '采油十二厂', wellType: '忽斜井', wellModel: '注水井',
+      taskType: '造斜井', depth: '1198.1', horizontalLength: '', progress: 60, status: '正在施工',
     },
     {
-      type: '直',wellNo: '黄221-205-2',projectName: '采油十厂',wellType: '大斜度井',wellModel: '油井',
-      taskType: '造斜井',depth: '4218.1',horizontalLength: '',progress: 60,status: '正在施工',
+      type: '直', wellNo: 'z221-205-2', projectName: '采油十厂', wellType: '大斜度井', wellModel: '油井',
+      taskType: '造斜井', depth: '4218.1', horizontalLength: '', progress: 60, status: '正在施工',
     },
     {
-      type: '压',wellNo: '庄64-3',projectName: '采油一厂',wellType: '空井筒',wellModel: '气井',
-      taskType: '气井压裂',depth: '4414',horizontalLength: '1311',progress: 60,status: '正在施工',
+      type: '压', wellNo: 'XX64-3', projectName: 'z', wellType: '空井筒', wellModel: '气井',
+      taskType: '气井压裂', depth: '4414', horizontalLength: '1311', progress: 60, status: '正在施工',
     },
     {
-      type: '压',wellNo: '庄64-3',projectName: '采油一厂',wellType: '空井筒',wellModel: '气井',
-      taskType: '气井压裂',depth: '4414',horizontalLength: '1311',progress: 80,status: '正在施工',
+      type: '压', wellNo: 'XX64-3', projectName: 'z', wellType: '空井筒', wellModel: '气井',
+      taskType: '气井压裂', depth: '4414', horizontalLength: '1311', progress: 80, status: '正在施工',
     },
     {
-      type: '压',wellNo: '庄64-3',projectName: '采油一厂',wellType: '空井筒',wellModel: '气井',
-      taskType: '气井压裂',depth: '4414',horizontalLength: '1311',progress: 60,status: '正在施工',
+      type: '压', wellNo: 'XX64-3', projectName: 'z', wellType: '空井筒', wellModel: '气井',
+      taskType: '气井压裂', depth: '4414', horizontalLength: '1311', progress: 60, status: '正在施工',
     },
     {
-      type: '压',wellNo: '苏42-13-101H',projectName: '苏里格天然气',wellType: '水平井',wellModel: '气井',
-      taskType: '气井压裂',depth: '3370',horizontalLength: '',progress: 60,status: '到井待施工',
+      type: '压', wellNo: 'XX42-13-101H', projectName: '五部天然气', wellType: '水平井', wellModel: '气井',
+      taskType: '气井压裂', depth: '3370', horizontalLength: '', progress: 60, status: '到井待施工',
     },
     {
-      type: '压',wellNo: '苏42-13-101H',projectName: '苏里格天然气',wellType: '水平井',wellModel: '气井',
-      taskType: '气井压裂',depth: '3370',horizontalLength: '',progress: 60,status: '到井待施工',
+      type: '压', wellNo: 'XX42-13-101H', projectName: '五部天然气', wellType: '水平井', wellModel: '气井',
+      taskType: '气井压裂', depth: '3370', horizontalLength: '', progress: 60, status: '到井待施工',
     },
     {
-      type: '压',wellNo: '苏25-41',projectName: '采气二厂',wellType: '直井',wellModel: '气井',
-      taskType: '气井',depth: '2810',horizontalLength: '',progress: 20,status: '上升途中',
+      type: '压', wellNo: 'XX25-41', projectName: '采气二厂', wellType: '直井', wellModel: '气井',
+      taskType: '气井', depth: '2810', horizontalLength: '', progress: 20, status: '上升途中',
     },
     {
-      type: '压',wellNo: '庄51-16-2',projectName: '采油十二厂',wellType: '注水井',wellModel: '',
-      taskType: '',depth: '',horizontalLength: '',progress: 20,status: '上升途中',
+      type: '压', wellNo: 'XX51-16-2', projectName: '采油十二厂', wellType: '注水井', wellModel: '',
+      taskType: '', depth: '', horizontalLength: '', progress: 20, status: '上升途中',
     },
     {
-      type: '压',wellNo: '庄51-16-2',projectName: '采油十二厂',wellType: '注水井',wellModel: '',
-      taskType: '',depth: '',horizontalLength: '',progress: 20,status: '上升途中',
+      type: '压', wellNo: 'XX51-16-2', projectName: '采油十二厂', wellType: '注水井', wellModel: '',
+      taskType: '', depth: '', horizontalLength: '', progress: 20, status: '上升途中',
     },
   ],
   '三部': [
     {
-      type: '直',wellNo: '庄54-101',projectName: '采油十二厂',wellType: '忽斜井',wellModel: '注水井',
-      taskType: '造斜井',depth: '1198.1',horizontalLength: '',progress: 60,status: '正在施工',
+      type: '直', wellNo: 'XX54-101', projectName: '采油十二厂', wellType: '忽斜井', wellModel: '注水井',
+      taskType: '造斜井', depth: '1198.1', horizontalLength: '', progress: 60, status: '正在施工',
     },
     {
-      type: '直',wellNo: '黄221-205-2',projectName: '采油十厂',wellType: '大斜度井',wellModel: '油井',
-      taskType: '造斜井',depth: '4218.1',horizontalLength: '',progress: 60,status: '正在施工',
+      type: '直', wellNo: 'z221-205-2', projectName: '采油十厂', wellType: '大斜度井', wellModel: '油井',
+      taskType: '造斜井', depth: '4218.1', horizontalLength: '', progress: 60, status: '正在施工',
     },
     {
-      type: '压',wellNo: '庄64-3',projectName: '采油一厂',wellType: '空井筒',wellModel: '气井',
-      taskType: '气井压裂',depth: '4414',horizontalLength: '1311',progress: 80,status: '正在施工',
+      type: '压', wellNo: 'XX64-3', projectName: 'z', wellType: '空井筒', wellModel: '气井',
+      taskType: '气井压裂', depth: '4414', horizontalLength: '1311', progress: 80, status: '正在施工',
     },
     {
-      type: '压',wellNo: '庄64-3',projectName: '采油一厂',wellType: '空井筒',wellModel: '气井',
-      taskType: '气井压裂',depth: '4414',horizontalLength: '1311',progress: 60,status: '正在施工',
+      type: '压', wellNo: 'XX64-3', projectName: 'z', wellType: '空井筒', wellModel: '气井',
+      taskType: '气井压裂', depth: '4414', horizontalLength: '1311', progress: 60, status: '正在施工',
     },
     {
-      type: '压',wellNo: '庄64-3',projectName: '采油一厂',wellType: '空井筒',wellModel: '气井',
-      taskType: '气井压裂',depth: '4414',horizontalLength: '1311',progress: 60,status: '正在施工',
+      type: '压', wellNo: 'XX64-3', projectName: 'z', wellType: '空井筒', wellModel: '气井',
+      taskType: '气井压裂', depth: '4414', horizontalLength: '1311', progress: 60, status: '正在施工',
     },
     {
-      type: '压',wellNo: '苏42-13-101H',projectName: '苏里格天然气',wellType: '水平井',wellModel: '气井',
-      taskType: '气井压裂',depth: '3370',horizontalLength: '',progress: 60,status: '到井待施工',
+      type: '压', wellNo: 'XX42-13-101H', projectName: '五部天然气', wellType: '水平井', wellModel: '气井',
+      taskType: '气井压裂', depth: '3370', horizontalLength: '', progress: 60, status: '到井待施工',
     },
     {
-      type: '压',wellNo: '苏42-13-101H',projectName: '苏里格天然气',wellType: '水平井',wellModel: '气井',
-      taskType: '气井压裂',depth: '3370',horizontalLength: '',progress: 60,status: '到井待施工',
+      type: '压', wellNo: 'XX42-13-101H', projectName: '五部天然气', wellType: '水平井', wellModel: '气井',
+      taskType: '气井压裂', depth: '3370', horizontalLength: '', progress: 60, status: '到井待施工',
     },
     {
-      type: '压',wellNo: '苏25-41',projectName: '采气二厂',wellType: '直井',wellModel: '气井',
-      taskType: '气井',depth: '2810',horizontalLength: '',progress: 20,status: '上升途中',
+      type: '压', wellNo: 'XX25-41', projectName: '采气二厂', wellType: '直井', wellModel: '气井',
+      taskType: '气井', depth: '2810', horizontalLength: '', progress: 20, status: '上升途中',
     },
     {
-      type: '压',wellNo: '庄51-16-2',projectName: '采油十二厂',wellType: '注水井',wellModel: '',
-      taskType: '',depth: '',horizontalLength: '',progress: 20,status: '上升途中',
+      type: '压', wellNo: 'XX51-16-2', projectName: '采油十二厂', wellType: '注水井', wellModel: '',
+      taskType: '', depth: '', horizontalLength: '', progress: 20, status: '上升途中',
     },
     {
-      type: '压',wellNo: '庄51-16-2',projectName: '采油十二厂',wellType: '注水井',wellModel: '',
-      taskType: '',depth: '',horizontalLength: '',progress: 20,status: '上升途中',
+      type: '压', wellNo: 'XX51-16-2', projectName: '采油十二厂', wellType: '注水井', wellModel: '',
+      taskType: '', depth: '', horizontalLength: '', progress: 20, status: '上升途中',
     },
   ],
   '四部': [
     {
-      type: '直',wellNo: '庄54-101',projectName: '采油十二厂',wellType: '忽斜井',wellModel: '注水井',
-      taskType: '造斜井',depth: '1198.1',horizontalLength: '',progress: 60,status: '正在施工',
+      type: '直', wellNo: 'XX54-101', projectName: '采油十二厂', wellType: '忽斜井', wellModel: '注水井',
+      taskType: '造斜井', depth: '1198.1', horizontalLength: '', progress: 60, status: '正在施工',
     },
     {
-      type: '直',wellNo: '黄221-205-2',projectName: '采油十厂',wellType: '大斜度井',wellModel: '油井',
-      taskType: '造斜井',depth: '4218.1',horizontalLength: '',progress: 60,status: '正在施工',
+      type: '直', wellNo: 'z221-205-2', projectName: '采油十厂', wellType: '大斜度井', wellModel: '油井',
+      taskType: '造斜井', depth: '4218.1', horizontalLength: '', progress: 60, status: '正在施工',
     },
     {
-      type: '压',wellNo: '庄64-3',projectName: '采油一厂',wellType: '空井筒',wellModel: '气井',
-      taskType: '气井压裂',depth: '4414',horizontalLength: '1311',progress: 80,status: '正在施工',
+      type: '压', wellNo: 'XX64-3', projectName: 'z', wellType: '空井筒', wellModel: '气井',
+      taskType: '气井压裂', depth: '4414', horizontalLength: '1311', progress: 80, status: '正在施工',
     },
     {
-      type: '压',wellNo: '庄64-3',projectName: '采油一厂',wellType: '空井筒',wellModel: '气井',
-      taskType: '气井压裂',depth: '4414',horizontalLength: '1311',progress: 60,status: '正在施工',
+      type: '压', wellNo: 'XX64-3', projectName: 'z', wellType: '空井筒', wellModel: '气井',
+      taskType: '气井压裂', depth: '4414', horizontalLength: '1311', progress: 60, status: '正在施工',
     },
     {
-      type: '压',wellNo: '庄64-3',projectName: '采油一厂',wellType: '空井筒',wellModel: '气井',
-      taskType: '气井压裂',depth: '4414',horizontalLength: '1311',progress: 60,status: '正在施工',
+      type: '压', wellNo: 'XX64-3', projectName: 'z', wellType: '空井筒', wellModel: '气井',
+      taskType: '气井压裂', depth: '4414', horizontalLength: '1311', progress: 60, status: '正在施工',
     },
     {
-      type: '压',wellNo: '苏42-13-101H',projectName: '苏里格天然气',wellType: '水平井',wellModel: '气井',
-      taskType: '气井压裂',depth: '3370',horizontalLength: '',progress: 60,status: '到井待施工',
+      type: '压', wellNo: 'XX42-13-101H', projectName: '五部天然气', wellType: '水平井', wellModel: '气井',
+      taskType: '气井压裂', depth: '3370', horizontalLength: '', progress: 60, status: '到井待施工',
     },
     {
-      type: '压',wellNo: '苏42-13-101H',projectName: '苏里格天然气',wellType: '水平井',wellModel: '气井',
-      taskType: '气井压裂',depth: '3370',horizontalLength: '',progress: 60,status: '到井待施工',
+      type: '压', wellNo: 'XX42-13-101H', projectName: '五部天然气', wellType: '水平井', wellModel: '气井',
+      taskType: '气井压裂', depth: '3370', horizontalLength: '', progress: 60, status: '到井待施工',
     },
     {
-      type: '压',wellNo: '苏25-41',projectName: '采气二厂',wellType: '直井',wellModel: '气井',
-      taskType: '气井',depth: '2810',horizontalLength: '',progress: 20,status: '上升途中',
+      type: '压', wellNo: 'XX25-41', projectName: '采气二厂', wellType: '直井', wellModel: '气井',
+      taskType: '气井', depth: '2810', horizontalLength: '', progress: 20, status: '上升途中',
     },
     {
-      type: '压',wellNo: '庄51-16-2',projectName: '采油十二厂',wellType: '注水井',wellModel: '',
-      taskType: '',depth: '',horizontalLength: '',progress: 20,status: '上升途中',
+      type: '压', wellNo: 'XX51-16-2', projectName: '采油十二厂', wellType: '注水井', wellModel: '',
+      taskType: '', depth: '', horizontalLength: '', progress: 20, status: '上升途中',
     },
     {
-      type: '压',wellNo: '庄51-16-2',projectName: '采油十二厂',wellType: '注水井',wellModel: '',
-      taskType: '',depth: '',horizontalLength: '',progress: 20,status: '上升途中',
+      type: '压', wellNo: 'XX51-16-2', projectName: '采油十二厂', wellType: '注水井', wellModel: '',
+      taskType: '', depth: '', horizontalLength: '', progress: 20, status: '上升途中',
     },
   ],
-  '苏里格': [
+  '五部': [
     {
-      type: '直',wellNo: '庄54-101',projectName: '采油十二厂',wellType: '忽斜井',wellModel: '注水井',
-      taskType: '造斜井',depth: '1198.1',horizontalLength: '',progress: 60,status: '正在施工',
+      type: '直', wellNo: 'XX54-101', projectName: '采油十二厂', wellType: '忽斜井', wellModel: '注水井',
+      taskType: '造斜井', depth: '1198.1', horizontalLength: '', progress: 60, status: '正在施工',
     },
     {
-      type: '直',wellNo: '黄221-205-2',projectName: '采油十厂',wellType: '大斜度井',wellModel: '油井',
-      taskType: '造斜井',depth: '4218.1',horizontalLength: '',progress: 60,status: '正在施工',
+      type: '直', wellNo: 'z221-205-2', projectName: '采油十厂', wellType: '大斜度井', wellModel: '油井',
+      taskType: '造斜井', depth: '4218.1', horizontalLength: '', progress: 60, status: '正在施工',
     },
     {
-      type: '压',wellNo: '庄64-3',projectName: '采油一厂',wellType: '空井筒',wellModel: '气井',
-      taskType: '气井压裂',depth: '4414',horizontalLength: '1311',progress: 80,status: '正在施工',
+      type: '压', wellNo: 'XX64-3', projectName: 'z', wellType: '空井筒', wellModel: '气井',
+      taskType: '气井压裂', depth: '4414', horizontalLength: '1311', progress: 80, status: '正在施工',
     },
     {
-      type: '压',wellNo: '庄64-3',projectName: '采油一厂',wellType: '空井筒',wellModel: '气井',
-      taskType: '气井压裂',depth: '4414',horizontalLength: '1311',progress: 60,status: '正在施工',
+      type: '压', wellNo: 'XX64-3', projectName: 'z', wellType: '空井筒', wellModel: '气井',
+      taskType: '气井压裂', depth: '4414', horizontalLength: '1311', progress: 60, status: '正在施工',
     },
     {
-      type: '压',wellNo: '庄64-3',projectName: '采油一厂',wellType: '空井筒',wellModel: '气井',
-      taskType: '气井压裂',depth: '4414',horizontalLength: '1311',progress: 60,status: '正在施工',
+      type: '压', wellNo: 'XX64-3', projectName: 'z', wellType: '空井筒', wellModel: '气井',
+      taskType: '气井压裂', depth: '4414', horizontalLength: '1311', progress: 60, status: '正在施工',
     },
     {
-      type: '压',wellNo: '苏42-13-101H',projectName: '苏里格天然气',wellType: '水平井',wellModel: '气井',
-      taskType: '气井压裂',depth: '3370',horizontalLength: '',progress: 60,status: '到井待施工',
+      type: '压', wellNo: 'XX42-13-101H', projectName: '五部天然气', wellType: '水平井', wellModel: '气井',
+      taskType: '气井压裂', depth: '3370', horizontalLength: '', progress: 60, status: '到井待施工',
     },
     {
-      type: '压',wellNo: '苏42-13-101H',projectName: '苏里格天然气',wellType: '水平井',wellModel: '气井',
-      taskType: '气井压裂',depth: '3370',horizontalLength: '',progress: 60,status: '到井待施工',
+      type: '压', wellNo: 'XX42-13-101H', projectName: '五部天然气', wellType: '水平井', wellModel: '气井',
+      taskType: '气井压裂', depth: '3370', horizontalLength: '', progress: 60, status: '到井待施工',
     },
     {
-      type: '压',wellNo: '苏25-41',projectName: '采气二厂',wellType: '直井',wellModel: '气井',
-      taskType: '气井',depth: '2810',horizontalLength: '',progress: 20,status: '上升途中',
+      type: '压', wellNo: 'XX25-41', projectName: '采气二厂', wellType: '直井', wellModel: '气井',
+      taskType: '气井', depth: '2810', horizontalLength: '', progress: 20, status: '上升途中',
     },
     {
-      type: '压',wellNo: '庄51-16-2',projectName: '采油十二厂',wellType: '注水井',wellModel: '',
-      taskType: '',depth: '',horizontalLength: '',progress: 20,status: '上升途中',
+      type: '压', wellNo: 'XX51-16-2', projectName: '采油十二厂', wellType: '注水井', wellModel: '',
+      taskType: '', depth: '', horizontalLength: '', progress: 20, status: '上升途中',
     },
     {
-      type: '压',wellNo: '庄51-16-2',projectName: '采油十二厂',wellType: '注水井',wellModel: '',
-      taskType: '',depth: '',horizontalLength: '',progress: 20,status: '上升途中',
+      type: '压', wellNo: 'XX51-16-2', projectName: '采油十二厂', wellType: '注水井', wellModel: '',
+      taskType: '', depth: '', horizontalLength: '', progress: 20, status: '上升途中',
     },
   ],
 });
 
 // 模拟数据：全流程要素考核
-const allAssessmentData  = ref({
+const allAssessmentData = ref({
   '公司': [
     {
-      dept: '庄51-16-2',formula: 1,material: 0,cement: 0,design: 0,wellbore: 0,casing: 0,
-      before: 0,during: 0,condition: 0,total: 1,
+      dept: 'XX51-16-2', formula: 1, material: 0, cement: 0, design: 0, wellbore: 0, casing: 0,
+      before: 0, during: 0, condition: 0, total: 1,
     },
     {
-      dept: '苏25-41',formula: 0,material: 0,cement: 1,design: 0,wellbore: 0,casing: 0,
-      before: 0,during: 0,condition: 0,total: 1,
+      dept: 'XX25-41', formula: 0, material: 0, cement: 1, design: 0, wellbore: 0, casing: 0,
+      before: 0, during: 0, condition: 0, total: 1,
     },
     {
-      dept: '庄64-3',formula: 1,material: 0,cement: 0,design: 0,wellbore: 0,casing: 0,
-      before: 0,during: 0,condition: 0,total: 1,
+      dept: 'XX64-3', formula: 1, material: 0, cement: 0, design: 0, wellbore: 0, casing: 0,
+      before: 0, during: 0, condition: 0, total: 1,
     },
     {
-      dept: '黄221-20',formula: 0,material: 0,cement: 1,design: 0,wellbore: 0,casing: 0,
-      before: 0,during: 0,condition: 0,total: 1,
+      dept: 'z221-20', formula: 0, material: 0, cement: 1, design: 0, wellbore: 0, casing: 0,
+      before: 0, during: 0, condition: 0, total: 1,
     },
     {
-      dept: '庄51-16-3',formula: 0,material: 0,cement: 0,design: 0,wellbore: 0,casing: 0,
-      before: 0,during: 0,condition: 1,total: 1,
+      dept: 'XX51-16-3', formula: 0, material: 0, cement: 0, design: 0, wellbore: 0, casing: 0,
+      before: 0, during: 0, condition: 1, total: 1,
     },
   ],
   '一部': [
     {
-      dept: '庄51-16-2',formula: 1,material: 0,cement: 1,design: 0,wellbore: 0,casing: 0,
-      before: 0,during: 0,condition: 0,total: 2,
+      dept: 'XX51-16-2', formula: 1, material: 0, cement: 1, design: 0, wellbore: 0, casing: 0,
+      before: 0, during: 0, condition: 0, total: 2,
     },
     {
-      dept: '苏25-41',formula: 0,material: 2,cement: 0,design: 0,wellbore: 0,casing: 0,
-      before: 0,during: 1,condition: 0,total: 3,
+      dept: 'XX25-41', formula: 0, material: 2, cement: 0, design: 0, wellbore: 0, casing: 0,
+      before: 0, during: 1, condition: 0, total: 3,
     },
     {
-      dept: '庄64-3',formula: 0,material: 0,cement: 0,design: 0,wellbore: 0,casing: 0,
-      before: 0,during: 0,condition: 0,total: 0,
+      dept: 'XX64-3', formula: 0, material: 0, cement: 0, design: 0, wellbore: 0, casing: 0,
+      before: 0, during: 0, condition: 0, total: 0,
     },
     {
-      dept: '黄221-20',formula: 1,material: 0,cement: 0,design: 0,wellbore: 0,casing: 0,
-      before: 0,during: 0,condition: 0,total: 1,
+      dept: 'z221-20', formula: 1, material: 0, cement: 0, design: 0, wellbore: 0, casing: 0,
+      before: 0, during: 0, condition: 0, total: 1,
     },
     {
-      dept: '庄51-16-3',formula: 0,material: 0,cement: 0,design: 0,wellbore: 0,casing: 0,
-      before: 0,during: 0,condition: 0,total: 0,
+      dept: 'XX51-16-3', formula: 0, material: 0, cement: 0, design: 0, wellbore: 0, casing: 0,
+      before: 0, during: 0, condition: 0, total: 0,
     },
   ],
   '二部': [
     {
-      dept: '庄51-16-2',formula: 0,material: 0,cement: 0,design: 0,wellbore: 0,casing: 0,
-      before: 0,during: 0,condition: 1,total: 1,
+      dept: 'XX51-16-2', formula: 0, material: 0, cement: 0, design: 0, wellbore: 0, casing: 0,
+      before: 0, during: 0, condition: 1, total: 1,
     },
     {
-      dept: '苏25-41',formula: 0,material: 0,cement: 0,design: 0,wellbore: 0,casing: 0,
-      before: 0,during: 0,condition: 0,total: 0,
+      dept: 'XX25-41', formula: 0, material: 0, cement: 0, design: 0, wellbore: 0, casing: 0,
+      before: 0, during: 0, condition: 0, total: 0,
     },
     {
-      dept: '庄64-3',formula: 1,material: 0,cement: 0,design: 0,wellbore: 0,casing: 0,
-      before: 0,during: 0,condition: 0,total: 1,
+      dept: 'XX64-3', formula: 1, material: 0, cement: 0, design: 0, wellbore: 0, casing: 0,
+      before: 0, during: 0, condition: 0, total: 1,
     },
     {
-      dept: '黄221-20',formula: 0,material: 0,cement: 0,design: 0,wellbore: 0,casing: 0,
-      before: 0,during: 0,condition: 0,total: 0,
+      dept: 'z221-20', formula: 0, material: 0, cement: 0, design: 0, wellbore: 0, casing: 0,
+      before: 0, during: 0, condition: 0, total: 0,
     },
     {
-      dept: '庄51-16-3',formula: 0,material: 0,cement: 0,design: 0,wellbore: 0,casing: 0,
-      before: 0,during: 0,condition: 0,total: 0,
+      dept: 'XX51-16-3', formula: 0, material: 0, cement: 0, design: 0, wellbore: 0, casing: 0,
+      before: 0, during: 0, condition: 0, total: 0,
     },
   ],
   '三部': [
     {
-      dept: '庄51-16-2',formula: 0,material: 0,cement: 0,design: 0,wellbore: 0,casing: 0,
-      before: 0,during: 0,condition: 0,total: 0,
+      dept: 'XX51-16-2', formula: 0, material: 0, cement: 0, design: 0, wellbore: 0, casing: 0,
+      before: 0, during: 0, condition: 0, total: 0,
     },
     {
-      dept: '苏25-41',formula: 1,material: 0,cement: 0,design: 0,wellbore: 0,casing: 0,
-      before: 0,during: 0,condition: 0,total: 1,
+      dept: 'XX25-41', formula: 1, material: 0, cement: 0, design: 0, wellbore: 0, casing: 0,
+      before: 0, during: 0, condition: 0, total: 1,
     },
     {
-      dept: '庄64-3',formula: 0,material: 0,cement: 0,design: 0,wellbore: 0,casing: 0,
-      before: 0,during: 0,condition: 0,total: 0,
+      dept: 'XX64-3', formula: 0, material: 0, cement: 0, design: 0, wellbore: 0, casing: 0,
+      before: 0, during: 0, condition: 0, total: 0,
     },
     {
-      dept: '黄221-20',formula: 0,material: 0,cement: 0,design: 0,wellbore: 0,casing: 0,
-      before: 0,during: 0,condition: 0,total: 0,
+      dept: 'z221-20', formula: 0, material: 0, cement: 0, design: 0, wellbore: 0, casing: 0,
+      before: 0, during: 0, condition: 0, total: 0,
     },
     {
-      dept: '庄51-16-3',formula: 0,material: 0,cement: 0,design: 0,wellbore: 0,casing: 0,
-      before: 0,during: 0,condition: 0,total: 0,
+      dept: 'XX51-16-3', formula: 0, material: 0, cement: 0, design: 0, wellbore: 0, casing: 0,
+      before: 0, during: 0, condition: 0, total: 0,
     },
   ],
   '四部': [
     {
-      dept: '庄51-16-2',formula: 0,material: 0,cement: 0,design: 0,wellbore: 0,casing: 0,
-      before: 0,during: 0,condition: 1,total: 1,
+      dept: 'XX51-16-2', formula: 0, material: 0, cement: 0, design: 0, wellbore: 0, casing: 0,
+      before: 0, during: 0, condition: 1, total: 1,
     },
     {
-      dept: '苏25-41',formula: 0,material: 0,cement: 0,design: 0,wellbore: 0,casing: 0,
-      before: 0,during: 0,condition: 0,total: 0,
+      dept: 'XX25-41', formula: 0, material: 0, cement: 0, design: 0, wellbore: 0, casing: 0,
+      before: 0, during: 0, condition: 0, total: 0,
     },
     {
-      dept: '庄64-3',formula: 0,material: 0,cement: 0,design: 0,wellbore: 0,casing: 0,
-      before: 0,during: 0,condition: 0,total: 0,
+      dept: 'XX64-3', formula: 0, material: 0, cement: 0, design: 0, wellbore: 0, casing: 0,
+      before: 0, during: 0, condition: 0, total: 0,
     },
     {
-      dept: '黄221-20',formula: 0,material: 0,cement: 0,design: 0,wellbore: 0,casing: 0,
-      before: 0,during: 0,condition: 0,total: 0,
+      dept: 'z221-20', formula: 0, material: 0, cement: 0, design: 0, wellbore: 0, casing: 0,
+      before: 0, during: 0, condition: 0, total: 0,
     },
     {
-      dept: '庄51-16-3',formula: 1,material: 0,cement: 0,design: 0,wellbore: 0,casing: 0,
-      before: 0,during: 0,condition: 0,total: 1,
+      dept: 'XX51-16-3', formula: 1, material: 0, cement: 0, design: 0, wellbore: 0, casing: 0,
+      before: 0, during: 0, condition: 0, total: 1,
     },
   ],
-  '苏里格': [
+  '五部': [
     {
-      dept: '庄51-16-2',formula: 0,material: 0,cement: 0,design: 0,wellbore: 0,casing: 0,
-      before: 0,during: 0,condition: 1,total: 1,
+      dept: 'XX51-16-2', formula: 0, material: 0, cement: 0, design: 0, wellbore: 0, casing: 0,
+      before: 0, during: 0, condition: 1, total: 1,
     },
     {
-      dept: '苏25-41',formula: 0,material: 0,cement: 0,design: 0,wellbore: 0,casing: 0,
-      before: 0,during: 0,condition: 0,total: 0,
+      dept: 'XX25-41', formula: 0, material: 0, cement: 0, design: 0, wellbore: 0, casing: 0,
+      before: 0, during: 0, condition: 0, total: 0,
     },
     {
-      dept: '庄64-3',formula: 0,material: 0,cement: 0,design: 0,wellbore: 0,casing: 0,
-      before: 0,during: 0,condition: 0,total: 0,
+      dept: 'XX64-3', formula: 0, material: 0, cement: 0, design: 0, wellbore: 0, casing: 0,
+      before: 0, during: 0, condition: 0, total: 0,
     },
     {
-      dept: '黄221-20',formula: 2,material: 0,cement: 0,design: 0,wellbore: 0,casing: 0,
-      before: 0,during: 0,condition: 0,total: 2,
+      dept: 'z221-20', formula: 2, material: 0, cement: 0, design: 0, wellbore: 0, casing: 0,
+      before: 0, during: 0, condition: 0, total: 2,
     },
     {
-      dept: '庄51-16-3',formula: 0,material: 0,cement: 0,design: 0,wellbore: 0,casing: 0,
-      before: 0,during: 0,condition: 0,total: 0,
+      dept: 'XX51-16-3', formula: 0, material: 0, cement: 0, design: 0, wellbore: 0, casing: 0,
+      before: 0, during: 0, condition: 0, total: 0,
     },
   ]
 });
@@ -833,21 +814,21 @@ const switchProductionTab = (tab) => { activeProductionTab.value = tab; };
 const planData = ref([
   {
     id: 1,
-    wellNo: '庄54-101',
+    wellNo: 'XX54-101',
     status: '现场未确认',
     reason: '密度计测量偏差|设计1.8g/cm³|实际1.6g/cm³',
     time: '2025-11-03 08:44:43',
   },
   {
     id: 2,
-    wellNo: '庄54-101',
+    wellNo: 'XX54-101',
     status: '现场未确认',
     reason: '密度计测量偏差|设计1.8g/cm³|实际1.6g/cm³',
     time: '2025-11-03 08:44:43',
   },
   {
     id: 3,
-    wellNo: '庄54-101',
+    wellNo: 'XX54-101',
     status: '现场未确认',
     reason: '密度计测量偏差|设计1.8g/cm³|实际1.6g/cm³',
     time: '2025-11-03 08:44:43',
@@ -860,7 +841,7 @@ const wellDistributionData = ref([
   { label: '二部', value: 140, color: 'rgba(76, 175, 80, 0.7)' },
   { label: '三部', value: 131, color: 'rgba(255, 193, 7, 0.7)' },
   { label: '四部', value: 130, color: 'rgba(255, 152, 0, 0.7)' },
-  { label: '苏里格', value: 311, color: 'rgba(156, 39, 176, 0.7)' },
+  { label: '五部', value: 311, color: 'rgba(156, 39, 176, 0.7)' },
 ]);
 
 const factorDistributionData = ref([
@@ -876,7 +857,7 @@ const factorDistributionData = ref([
 
 // 获取状态类名
 const getStatusClass = (status) => {
-  switch(status) {
+  switch (status) {
     case '正在施工':
       return 'status-processing';
     case '到井待施工':
@@ -895,7 +876,7 @@ onMounted(() => {
   new Chart(processNodeCtx, {
     type: 'bar',
     data: {
-      labels: ['公司', '一部', '二部', '三部', '四部', '苏里格'],
+      labels: ['公司', '一部', '二部', '三部', '四部', '五部'],
       datasets: [
         {
           label: '预警(项)',
@@ -907,7 +888,7 @@ onMounted(() => {
           label: '处理合格(项)',
           data: [245, 45, 100, 156, 15, 54],
           backgroundColor: 'rgba(76, 175, 80, 0.7)',
-          borderRadius: 8, 
+          borderRadius: 8,
         },
       ],
     },
@@ -962,7 +943,7 @@ onMounted(() => {
         },
         tooltip: {
           callbacks: {
-            label: function(context) {
+            label: function (context) {
               const label = context.label || '';
               const value = context.raw || 0;
               const total = context.dataset.data.reduce((a, b) => a + b, 0);
@@ -979,24 +960,24 @@ onMounted(() => {
         const { ctx, chartArea: { left, right, top, bottom, width, height } } = chart;
         const centerX = (left + right) / 2;
         const centerY = (top + bottom) / 2;
-        
+
         // 计算总数
         const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-        
+
         ctx.save();
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        
+
         // 绘制总数
         ctx.font = 'bold 24px Microsoft Yahei';
         ctx.fillStyle = '#2196f3';
         ctx.fillText(total.toString(), centerX, centerY - 15);
-        
+
         // 绘制标题
         ctx.font = '14px Microsoft Yahei';
         ctx.fillStyle = '#666';
         ctx.fillText('不合格总数', centerX, centerY + 10);
-        
+
         ctx.restore();
       }
     }]
@@ -1027,7 +1008,7 @@ onMounted(() => {
         },
         tooltip: {
           callbacks: {
-            label: function(context) {
+            label: function (context) {
               const label = context.label || '';
               const value = context.raw || 0;
               const total = context.dataset.data.reduce((a, b) => a + b, 0);
@@ -1044,24 +1025,24 @@ onMounted(() => {
         const { ctx, chartArea: { left, right, top, bottom, width, height } } = chart;
         const centerX = (left + right) / 2;
         const centerY = (top + bottom) / 2;
-        
+
         // 计算总数
         const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-        
+
         ctx.save();
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        
+
         // 绘制总数
         ctx.font = 'bold 24px Microsoft Yahei';
         ctx.fillStyle = '#2196f3';
         ctx.fillText(total.toString(), centerX, centerY - 15);
-        
+
         // 绘制标题
         ctx.font = '14px Microsoft Yahei';
         ctx.fillStyle = '#666';
         ctx.fillText('不合格总数', centerX, centerY + 10);
-        
+
         ctx.restore();
       }
     }]
@@ -1075,7 +1056,8 @@ onMounted(() => {
   padding: 20px;
   overflow-y: auto;
   display: grid;
-  grid-template-columns: 1fr 2fr 1fr; /* 1:2:1 比例 */
+  grid-template-columns: 1fr 2fr 1fr;
+  /* 1:2:1 比例 */
   grid-gap: 20px;
   background-color: #f5f7fa;
 }
@@ -1099,11 +1081,11 @@ onMounted(() => {
   flex-direction: column;
 }
 
-.panel_1{
+.panel_1 {
   height: 330px;
 }
 
-.panel_2{
+.panel_2 {
   height: 680px;
 }
 
@@ -1185,6 +1167,7 @@ onMounted(() => {
   margin-left: 5px;
   flex-shrink: 0;
 }
+
 .chart-container canvas {
   max-width: 90% !important;
   max-height: 90% !important;
@@ -1212,10 +1195,12 @@ onMounted(() => {
   margin-bottom: 10px;
   border-bottom: 1px solid #eaecef;
 }
-.tab_right{
+
+.tab_right {
   display: flex;
   margin-left: auto;
 }
+
 .tab-btn {
   padding: 8px 20px;
   border: none;
@@ -1235,9 +1220,11 @@ onMounted(() => {
 .data-table th,
 .data-table td {
   border: 1px solid #eaecef;
-  padding: 8px 10px;  /* 统一设置所有单元格的内边距 */
+  padding: 8px 10px;
+  /* 统一设置所有单元格的内边距 */
   text-align: center;
 }
+
 /* 统计卡片 */
 .stat-cards {
   display: grid;
@@ -1284,12 +1271,13 @@ onMounted(() => {
   font-weight: bold;
   color: #333;
 }
+
 /* 表头文字样式 */
-.item_fc1{
+.item_fc1 {
   color: #2196f3;
 }
 
-.item_fc{
+.item_fc {
   color: #2196f3;
 }
 
@@ -1370,26 +1358,26 @@ onMounted(() => {
   .content {
     grid-template-columns: 1fr;
   }
-  
+
   .left-column,
   .middle-column,
   .right-column {
     gap: 15px;
   }
-  
+
   .stat-cards {
     grid-template-columns: repeat(3, 1fr);
   }
-  
+
   .chart-container-wrapper {
     flex-direction: column;
   }
-  
+
   .chart-legend {
     max-width: 100%;
     max-height: 120px;
   }
-  
+
   .legend-item {
     display: inline-flex;
     width: 48%;
@@ -1401,7 +1389,7 @@ onMounted(() => {
   .stat-cards {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .legend-item {
     width: 100%;
     margin-right: 0;
