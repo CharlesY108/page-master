@@ -134,52 +134,72 @@
           <div style="width: 50%; height: 100%; display: flex; align-items: center; justify-content: center;">
 
             <!-- 表格样式美化一下，要区分一级权重和二级权重，并且默认展开所有一级权重 -->
-            <el-table :data="tableData" style="width: 100%;height: 100%;" row-key="id" border default-expand-all
-              :tree-props="{ children: 'children', hasChildren: 'hasChildren' }" :row-class-name="getRowClassName"
-              class="weight-table">
-              <el-table-column prop="name" label="控制项" min-width="200">
-                <template #default="{ row }">
-                  <span :class="row.value1 ? 'level-one-name' : 'level-two-name'">
-                    {{ row.name }}
-                  </span>
-                </template>
-              </el-table-column>
-              <el-table-column prop="value1" label="一级权重" width="150" align="center">
-                <template #default="{ row }">
-                  <span v-if="row.value1">
-                    <span v-if="!isEditing" @click="handleEdit(row)" class="weight-value level-one-weight">{{
-                      formatWeight(row.value1) }}</span>
-                    <span v-else>
-                      <input style="width: 50%;" type="text" class="weight-value level-one-weight"
-                        v-model="row.value1" />
-                      <el-button type="primary" size="small" text @click="handleSave(row)">保存</el-button>
+            <div style="width: 100%;height: 100%;">
+              <div class="chart-title" style="display: flex;justify-content: space-between;align-items: center;">
+                <div>
+                  <span>过程评分控制项校核 （注：可以修改权重值，但是不能修改控制项名称）</span>
+                  <el-button type="success" size="small" @click="handleAddWeightStandardItem">新增控制项</el-button>
+                </div>
+                <div>
+                  <el-button v-if="isEditing" type="danger" @click="handleSave(row)">保存</el-button>
+                  <el-button v-if="isEditing" type="primary" @click="handleCancel">取消</el-button>
+                </div>
+              </div>
+              <el-table :data="tableData" style="width: 100%;height: 100%;" row-key="id" border default-expand-all
+                :tree-props="{ children: 'children', hasChildren: 'hasChildren' }" :row-class-name="getRowClassName"
+                class="weight-table">
+                <el-table-column prop="name" label="控制项" min-width="200">
+                  <template #default="{ row }">
+                    <span :class="row.value1 ? 'level-one-name' : 'level-two-name'">
+                      {{ row.name }}
                     </span>
-                  </span>
-                  <span v-else class="weight-placeholder">-</span>
-                </template>
-              </el-table-column>
-              <el-table-column prop="value2" label="二级权重" width="150" align="center">
-                <template #default="{ row }">
-                  <span v-if="row.value2">
-                    <span v-if="!isEditing" @click="handleEdit(row)" class="weight-value level-two-weight">{{
-                      formatWeight(row.value2) }}</span>
-                    <span v-else>
-                      <input style="width: 50%;" type="text" class="weight-value level-two-weight"
-                        v-model="row.value2" />
-                      <el-button type="primary" size="small" text @click="handleSave(row)">保存</el-button>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="value1" label="一级权重" width="150" align="center">
+                  <template #default="{ row }">
+                    <span v-if="row.value1">
+                      <span v-if="!isEditing" @click="handleEdit(row)" class="weight-value level-one-weight">{{
+                        formatWeight(row.value1) }}</span>
+                      <span v-else>
+                        <input style="width: 50%;" type="text" class="weight-value level-one-weight"
+                          v-model="row.value1" />
+
+                      </span>
                     </span>
-                  </span>
-                  <span v-else class="weight-placeholder">-</span>
-                </template>
-              </el-table-column>
-            </el-table>
+                    <span v-else class="weight-placeholder">-</span>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="value2" label="二级权重" width="150" align="center">
+                  <template #default="{ row }">
+                    <span v-if="row.value2">
+                      <span v-if="!isEditing" @click="handleEdit(row)" class="weight-value level-two-weight">{{
+                        formatWeight(row.value2) }}</span>
+                      <span v-else>
+                        <input style="width: 50%;" type="text" class="weight-value level-two-weight"
+                          v-model="row.value2" />
+                      </span>
+                    </span>
+                    <span v-else class="weight-placeholder">-</span>
+                  </template>
+                </el-table-column>
+                <!-- 操作列 -->
+                <el-table-column label="操作" align="center">
+                  <template #default="{ row }">
+                    <el-button v-if="row.children" type="primary" size="small" text
+                      @click="handleAddWeight(row)">新增子权重</el-button>
+                    <el-button type="danger" size="small" text @click="handleDeleteWeight(row)">删除</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </div>
 
 
           </div>
           <div style="width: 50%; height: 100%;display: flex;flex-direction: column;gap: 10px;">
-            <div style="width: 100%; height: 35%;box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);border-radius: 10px;">
+            <div style="width: 100%; height: 15%;box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);border-radius: 10px;">
               <!-- 展示权重修改的前后对比 -->
-              <div style="width: 100%; height: 100%;display: flex;align-items: center;justify-content: center;">
+              <div style="width: 100%; height: 100%;display: flex;align-items: center;justify-content: center;"
+                v-if="false">
                 <div style="width: 50%; height: 100%;">
                   <div ref="weightChartRefBefore" class="chart-container" style="width: 100%; height: 100%;"></div>
                 </div>
@@ -187,15 +207,70 @@
                   <div ref="weightChartRefAfter" class="chart-container" style="width: 100%; height: 100%;"></div>
                 </div>
               </div>
+
+              <!-- 展示权重修改前后的评分结果对比 -->
+              <div style="width: 100%; height: 100%; display: flex; flex-direction: row; gap: 16px; padding: 16px 0;">
+                <div style="width: 50%; height: 100%; text-align: center;align-content: center;">
+                  <div style="color: #333; font-size: 15px; font-weight: 500; letter-spacing: 1px;">权重修改前过程综合评分（平均）
+                  </div>
+                  <div style="color: darkred; font-size: 28px; font-weight: bold;margin-top: 10px;">
+                    <span>85.6</span>
+                  </div>
+                </div>
+                <el-divider style="height: 100%;" direction="vertical" />
+                <div style="width: 50%; height: 100%; text-align: center;align-content: center;">
+                  <div style="color: #333; font-size: 15px; font-weight: 500; letter-spacing: 1px;">权重修改后过程综合评分（平均）
+                  </div>
+                  <div style="color: #10b981; font-size: 28px; font-weight: bold; margin-top: 10px;">
+                    <CountUp :startVal="0" :endVal="editoredVal" :duration="2" :decimalPlaces="2" />
+                  </div>
+                </div>
+              </div>
             </div>
             <div ref="weightChartRef"
-              style="width: 100%; height: 65%;box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);border-radius: 10px;"></div>
+              style="width: 100%; height: 85%;box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);border-radius: 10px;"></div>
           </div>
         </div>
         <template #footer>
           <span class="dialog-footer">
             <el-button @click="handleCloseWeightDialog">取 消</el-button>
             <el-button type="primary" @click="handleCloseWeightDialog">确 定</el-button>
+          </span>
+        </template>
+      </el-dialog>
+
+      <!-- 新增控制项弹窗 -->
+      <el-dialog v-model="showAddWeightStandardItemDialog" title="新增控制项" width="50%">
+        <el-form label-width="120px">
+          <el-form-item label="控制项名称">
+            <el-input v-model="addWeightStandardItemFormName" />
+          </el-form-item>
+          <el-form-item label="控制项值">
+            <el-input v-model="addWeightStandardItemFormValue" />
+          </el-form-item>
+        </el-form>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="handleCloseAddWeightStandardItemDialog">取 消</el-button>
+            <el-button type="primary" @click="handleAddWeightStandardItemDialogHandleSubmit">确 定</el-button>
+          </span>
+        </template>
+      </el-dialog>
+
+      <!-- 新增子权重弹窗 -->
+      <el-dialog v-model="showAddWeightDialog" title="新增子权重" width="50%">
+        <el-form label-width="120px">
+          <el-form-item label="子权重名称">
+            <el-input v-model="addWeightFormName" />
+          </el-form-item>
+          <el-form-item label="子权重值">
+            <el-input v-model="addWeightFormValue" />
+          </el-form-item>
+        </el-form>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="handleCloseAddWeightDialog">取 消</el-button>
+            <el-button type="primary" @click="handleAddWeightDialogHandleSubmit">确 定</el-button>
           </span>
         </template>
       </el-dialog>
@@ -253,14 +328,16 @@
 <script setup>
 import { ref, onMounted, watch, nextTick } from "vue";
 import * as echarts from "echarts";
-import { ElMessage } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
 import { graphCalc } from "../mock/graph-calc";
 import { mockModelData } from "../mock/mock-model-data";
 import { mockProcessData } from "../mock/mock-process-data";
 import { fieldMapping } from "../mock/processFieldMap";
 import { colorByNumber } from "../utils/utils-manage";
 import { mockSingleData } from "../mock/mock-single-data";
+import CountUp from 'vue-countup-v3'
 
+const editoredVal = ref((Math.random() * 100).toFixed(2));
 // 筛选条件
 const dateRange = ref([]);
 const wellType = ref("");
@@ -593,15 +670,23 @@ const tableData = ref([
 ]);
 
 const isEditing = ref(false);
+const orginBack = ref([]);
 const handleEdit = (row) => {
   console.log('编辑权重', row);
   isEditing.value = true;
+  orginBack.value = JSON.parse(JSON.stringify(tableData.value));
 };
 
 const handleSave = (row) => {
   console.log('保存权重', row);
   isEditing.value = false;
-  initWeightChartAfter();
+  editoredVal.value = (Math.random() * 100).toFixed(2);
+  // initWeightChartAfter();
+}
+
+const handleCancel = () => {
+  isEditing.value = false;
+  tableData.value = JSON.parse(JSON.stringify(orginBack.value));
 }
 
 const weightChartRefBefore = ref(null);
@@ -1810,6 +1895,108 @@ const getRowClassName = ({ row }) => {
   }
   return '';
 };
+
+const showAddWeightStandardItemDialog = ref(false);
+const addWeightStandardItemFormName = ref("");
+const addWeightStandardItemFormValue = ref(null);
+
+// 新增控制项
+const handleAddWeightStandardItem = () => {
+  console.log('新增控制项');
+  showAddWeightStandardItemDialog.value = true;
+};
+
+
+const handleCloseAddWeightStandardItemDialog = () => {
+  showAddWeightStandardItemDialog.value = false;
+  addWeightStandardItemFormName.value = "";
+  addWeightStandardItemFormValue.value = null;
+};
+
+const handleAddWeightStandardItemDialogHandleSubmit = () => {
+  console.log('新增控制项弹窗确定', addWeightStandardItemFormName.value);
+  if (addWeightStandardItemFormName.value == null || addWeightStandardItemFormName.value == "") {
+    ElMessage.error('请输入控制项名称');
+    return;
+  }
+  if (addWeightStandardItemFormValue.value == null || addWeightStandardItemFormValue.value == "") {
+    ElMessage.error('请输入控制项值');
+    return;
+  }
+  tableData.value.push({
+    id: tableData.value.length + 1,
+    name: addWeightStandardItemFormName.value,
+    value1: Number(addWeightStandardItemFormValue.value).toFixed(2),
+    children: [],
+  });
+  handleCloseAddWeightStandardItemDialog();
+  ElMessage.success('新增控制项成功');
+};
+
+const showAddWeightDialog = ref(false);
+const addWeightStandardItem = ref(null);
+const addWeightFormName = ref("");
+const addWeightFormValue = ref(null);
+// 新增子权重
+const handleAddWeight = (row) => {
+  console.log('新增子权重', row);
+  showAddWeightDialog.value = true;
+  addWeightStandardItem.value = row;
+};
+
+// 关闭新增子权重弹窗
+const handleCloseAddWeightDialog = () => {
+  showAddWeightDialog.value = false;
+  addWeightFormName.value = "";
+  addWeightFormValue.value = null;
+};
+
+// 新增子权重弹窗确定
+const handleAddWeightDialogHandleSubmit = () => {
+  console.log('新增子权重弹窗确定', addWeightStandardItem.value);
+  if (addWeightFormName.value == null || addWeightFormName.value == "") {
+    ElMessage.error('请输入子权重名称');
+    return;
+  }
+  if (addWeightFormValue.value == null || addWeightFormValue.value == "") {
+    ElMessage.error('请输入子权重值');
+    return;
+  }
+  addWeightStandardItem.value.children.push({
+    id: addWeightStandardItem.value.id + '.' + addWeightStandardItem.value.children.length + 1,
+    name: addWeightFormName.value,
+    value2: Number(addWeightFormValue.value).toFixed(2),
+  });
+  handleCloseAddWeightDialog();
+  ElMessage.success('新增子权重成功');
+  editoredVal.value = (Math.random() * 100).toFixed(2);
+};
+
+// 删除权重
+const handleDeleteWeight = (row) => {
+  console.log('删除权重', row);
+  ElMessageBox.confirm('确定删除该权重吗？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+  }).then(() => {
+    if (row.children) {
+      row.children.forEach(item => {
+        tableData.value = tableData.value.filter(item => item.id !== item.id);
+      });
+    } else {
+      tableData.value = tableData.value.filter(item => item.id !== row.id);
+    }
+    editoredVal.value = (Math.random() * 100).toFixed(2);
+    nextTick(() => {
+      initWeightChart();
+    });
+    ElMessage.success('删除权重成功');
+  }).catch(() => {
+    ElMessage.info('取消删除');
+  });
+};
+
 </script>
 
 <style scoped lang="less">
