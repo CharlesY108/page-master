@@ -78,7 +78,7 @@
 
       <!-- 数据表格 -->
       <el-table :data="tableDataDetail" border class="data-table">
-        <el-table-column type="index" :index="index"  label="序号" width="80" align="center" />
+        <el-table-column type="index" :index="index" label="序号" width="80" align="center" />
         <el-table-column prop="projectDept" label="项目部" align="center" />
         <el-table-column prop="projectGroup" label="项目组" align="center">
           <template #default="{ row }">
@@ -134,14 +134,8 @@
           <div style="width: 50%; height: 100%; display: flex; align-items: center; justify-content: center;">
 
             <!-- 表格样式美化一下，要区分一级权重和二级权重，并且默认展开所有一级权重 -->
-            <el-table 
-              :data="tableData" 
-              style="width: 100%;height: 100%;" 
-              row-key="id" 
-              border 
-              default-expand-all
-              :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
-              :row-class-name="getRowClassName"
+            <el-table :data="tableData" style="width: 100%;height: 100%;" row-key="id" border default-expand-all
+              :tree-props="{ children: 'children', hasChildren: 'hasChildren' }" :row-class-name="getRowClassName"
               class="weight-table">
               <el-table-column prop="name" label="控制项" min-width="200">
                 <template #default="{ row }">
@@ -152,16 +146,28 @@
               </el-table-column>
               <el-table-column prop="value1" label="一级权重" width="150" align="center">
                 <template #default="{ row }">
-                  <span v-if="row.value1" class="weight-value level-one-weight">
-                    {{ formatWeight(row.value1) }}
+                  <span v-if="row.value1">
+                    <span v-if="!isEditing" @click="handleEdit(row)" class="weight-value level-one-weight">{{
+                      formatWeight(row.value1) }}</span>
+                    <span v-else>
+                      <input style="width: 50%;" type="text" class="weight-value level-one-weight"
+                        v-model="row.value1" />
+                      <el-button type="primary" size="small" text @click="handleSave(row)">保存</el-button>
+                    </span>
                   </span>
                   <span v-else class="weight-placeholder">-</span>
                 </template>
               </el-table-column>
               <el-table-column prop="value2" label="二级权重" width="150" align="center">
                 <template #default="{ row }">
-                  <span v-if="row.value2" class="weight-value level-two-weight">
-                    {{ formatWeight(row.value2) }}
+                  <span v-if="row.value2">
+                    <span v-if="!isEditing" @click="handleEdit(row)" class="weight-value level-two-weight">{{
+                      formatWeight(row.value2) }}</span>
+                    <span v-else>
+                      <input style="width: 50%;" type="text" class="weight-value level-two-weight"
+                        v-model="row.value2" />
+                      <el-button type="primary" size="small" text @click="handleSave(row)">保存</el-button>
+                    </span>
                   </span>
                   <span v-else class="weight-placeholder">-</span>
                 </template>
@@ -170,7 +176,21 @@
 
 
           </div>
-          <div ref="weightChartRef" class="chart-container" style="width: 50%; height: 100%;"></div>
+          <div style="width: 50%; height: 100%;display: flex;flex-direction: column;gap: 10px;">
+            <div style="width: 100%; height: 35%;box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);border-radius: 10px;">
+              <!-- 展示权重修改的前后对比 -->
+              <div style="width: 100%; height: 100%;display: flex;align-items: center;justify-content: center;">
+                <div style="width: 50%; height: 100%;">
+                  <div ref="weightChartRefBefore" class="chart-container" style="width: 100%; height: 100%;"></div>
+                </div>
+                <div style="width: 50%; height: 100%;">
+                  <div ref="weightChartRefAfter" class="chart-container" style="width: 100%; height: 100%;"></div>
+                </div>
+              </div>
+            </div>
+            <div ref="weightChartRef"
+              style="width: 100%; height: 65%;box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);border-radius: 10px;"></div>
+          </div>
         </div>
         <template #footer>
           <span class="dialog-footer">
@@ -196,7 +216,7 @@
               style="width: 50%; height: 100%;">
             </div>
           </div>
-          
+
         </div>
         <template #footer>
           <span class="dialog-footer">
@@ -248,7 +268,7 @@ const wellCategory = ref("");
 
 // 分页参数
 const currentPage = ref(1);
-const pageSize = ref(10); 
+const pageSize = ref(10);
 
 // 表格数据
 /**
@@ -571,6 +591,219 @@ const tableData = ref([
     ]
   }
 ]);
+
+const isEditing = ref(false);
+const handleEdit = (row) => {
+  console.log('编辑权重', row);
+  isEditing.value = true;
+};
+
+const handleSave = (row) => {
+  console.log('保存权重', row);
+  isEditing.value = false;
+  initWeightChartAfter();
+}
+
+const weightChartRefBefore = ref(null);
+const weightChartRefAfter = ref(null);
+const initWeightChartBefore = () => {
+  const dataBack = JSON.parse(JSON.stringify(tableData.value));
+  const weightChartBefore = echarts.init(weightChartRefBefore.value);
+  weightChartBefore.setOption({
+    title: {
+      text: '修改前控制项权重',
+      left: 'center',
+      top: 15,
+      textStyle: {
+        color: '#333',
+        fontSize: 16,
+      },
+    },
+    tooltip: {
+      trigger: "item",
+      axisPointer: { type: "shadow" },
+    },
+    grid: { left: "3%", right: "10%", bottom: "3%", containLabel: true },
+    series: [
+      {
+        data: dataBack.map(item => {
+          return {
+            value: item.value1,
+            name: item.name,
+            label: {
+              show: true,
+              position: "outside",
+              formatter: "{b}: {c} ({d}%)"
+            },
+          }
+        }),
+        type: "pie",
+      }],
+  });
+  weightChartBefore.on('click', (params) => {
+    const dataBackChildren = dataBack.find(item => item.name === params.name).children;
+    weightChartBefore.setOption({
+      series: [{
+        data: dataBackChildren.map(item => {
+          return {
+            value: item.value2,
+            name: item.name,
+            label: {
+              show: true,
+              position: "outside",
+              formatter: "{b}: {c} ({d}%)"
+            },
+          }
+        }),
+        type: "pie",
+      }],
+      graphic: [
+        {
+          type: 'text',
+          right: 50,
+          top: 20,
+          style: {
+            text: '返回上一级',
+            fontSize: 14,
+            fill: '#333'
+          },
+          onclick: function () {
+            weightChartBefore.setOption({
+              title: {
+                text: '修改前控制项权重',
+                left: 'center',
+                top: 15,
+                textStyle: {
+                  color: '#333',
+                  fontSize: 16,
+                },
+              },
+              tooltip: {
+                trigger: "item",
+                axisPointer: { type: "shadow" },
+              },
+              grid: { left: "3%", right: "10%", bottom: "3%", containLabel: true },
+              series: [
+                {
+                  data: dataBack.map(item => {
+                    return {
+                      value: item.value1,
+                      name: item.name,
+                      label: {
+                        show: true,
+                        position: "outside",
+                        formatter: "{b}: {c} ({d}%)"
+                      },
+                    }
+                  }),
+                  type: "pie",
+                }],
+            })
+          }
+        }
+      ]
+    });
+  });
+}
+const initWeightChartAfter = () => {
+  const dataBack = tableData.value
+  const weightChartAfter = echarts.init(weightChartRefAfter.value);
+  weightChartAfter.setOption({
+    title: {
+      text: '修改后控制项权重',
+      left: 'center',
+      top: 15,
+      textStyle: {
+        color: '#333',
+        fontSize: 16,
+      },
+    },
+    tooltip: {
+      trigger: "item",
+      axisPointer: { type: "shadow" },
+    },
+    grid: { left: "3%", right: "10%", bottom: "3%", containLabel: true },
+    series: [
+      {
+        data: dataBack.map(item => {
+          return {
+            value: item.value1,
+            name: item.name,
+            label: {
+              show: true,
+              position: "outside",
+              formatter: "{b}: {c} ({d}%)"
+            },
+          }
+        }),
+        type: "pie",
+      }],
+  });
+  weightChartAfter.on('click', (params) => {
+    const dataBackChildren = dataBack.find(item => item.name === params.name).children;
+    weightChartAfter.setOption({
+      series: [{
+        data: dataBackChildren.map(item => {
+          return {
+            value: item.value2,
+            name: item.name,
+            label: {
+              show: true,
+              position: "outside",
+              formatter: "{b}: {c} ({d}%)"
+            },
+          }
+        }),
+        type: "pie",
+      }],
+      graphic: [
+        {
+          type: 'text',
+          right: 50,
+          top: 20,
+          style: {
+            text: '返回上一级',
+            fontSize: 14,
+            fill: '#333'
+          },
+          onclick: function () {
+            weightChartAfter.setOption({
+              title: {
+                text: '修改后控制项权重',
+                left: 'center',
+                top: 15,
+                textStyle: {
+                  color: '#333',
+                  fontSize: 16,
+                },
+              },
+              tooltip: {
+                trigger: "item",
+                axisPointer: { type: "shadow" },
+              },
+              grid: { left: "3%", right: "10%", bottom: "3%", containLabel: true },
+              series: [
+                {
+                  data: dataBack.map(item => {
+                    return {
+                      value: item.value1,
+                      name: item.name,
+                      label: {
+                        show: true,
+                        position: "outside",
+                        formatter: "{b}: {c} ({d}%)"
+                      },
+                    }
+                  }),
+                  type: "pie",
+                }],
+            })
+          }
+        }
+      ]
+    });
+  });
+}
 
 // 图表容器引用
 const qualificationRateRef = ref(null);
@@ -927,7 +1160,7 @@ const initCharts = () => {
   const controlItemQualificationChart = echarts.init(
     controlItemQualificationRef.value
   );
-  
+
   // 内圈数据：不合格红线（总条数）
   const innerData = [
     { value: 82, name: "红线1", itemStyle: { color: "#409eff" } },
@@ -936,7 +1169,7 @@ const initCharts = () => {
     { value: 107, name: "红线4", itemStyle: { color: "#5adbf6" } },
     { value: 210, name: "红线5", itemStyle: { color: "#faad14" } },
   ];
-  
+
   // 外圈数据：每个红线对应的关联关系（项目部分布）
   const outerData = [
     // 红线1对应的项目部分布
@@ -946,7 +1179,7 @@ const initCharts = () => {
     { value: 12, name: "四部-红线1", itemStyle: { color: "#5adbf6" } },
     { value: 10, name: "五部-红线1", itemStyle: { color: "#faad14" } },
   ];
-  
+
   controlItemQualificationChart.setOption({
     legend: {
       bottom: "center",
@@ -957,7 +1190,7 @@ const initCharts = () => {
     },
     tooltip: {
       trigger: "item",
-      formatter: function(params) {
+      formatter: function (params) {
         if (params.seriesName === "不合格红线（总条数）") {
           return params.seriesName + " <br/>" + params.name + ": " + params.value + " (" + params.percent + "%)";
         } else {
@@ -1025,7 +1258,7 @@ const initCharts = () => {
         label: {
           show: true,
           position: "outside",
-          formatter: function(params) {
+          formatter: function (params) {
             // 只显示项目部名称，不显示红线名称
             const parts = params.name.split('-');
             return parts[0];
@@ -1063,8 +1296,6 @@ const initCharts = () => {
     unqualifiedCountChart.resize();
     controlItemQualificationChart.resize();
   });
-
-
 };
 
 // 过程评分校核弹窗相关
@@ -1081,6 +1312,8 @@ const handleWeightDialog = () => {
   showWeightDialog.value = true;
   nextTick(() => {
     initWeightChart();
+    initWeightChartBefore();
+    initWeightChartAfter();
   });
 };
 const initWeightChart = () => {
@@ -1710,11 +1943,11 @@ const getRowClassName = ({ row }) => {
   :deep(.level-one-row) {
     background-color: #ecf5ff;
     font-weight: 600;
-    
+
     &:hover {
       background-color: #d9ecff !important;
     }
-    
+
     td {
       border-bottom: 2px solid #b3d8ff;
     }
@@ -1723,11 +1956,11 @@ const getRowClassName = ({ row }) => {
   /* 二级权重行样式 */
   :deep(.level-two-row) {
     background-color: #fafafa;
-    
+
     &:hover {
       background-color: #f0f0f0 !important;
     }
-    
+
     td {
       border-bottom: 1px solid #ebeef5;
     }
@@ -1749,11 +1982,20 @@ const getRowClassName = ({ row }) => {
 
   /* 权重值样式 */
   .weight-value {
+    width: 80px;
+    border: none;
+    text-align: center;
     display: inline-block;
     padding: 4px 12px;
     border-radius: 4px;
     font-weight: 600;
     font-size: 13px;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    -ms-appearance: none;
+    -o-appearance: none;
   }
 
   /* 一级权重值样式 */

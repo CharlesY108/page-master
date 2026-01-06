@@ -284,7 +284,7 @@
               </el-form>
             </div>
             <!-- 表格样式美化一下，要区分一级权重和二级权重，并且默认展开所有一级权重 -->
-            <el-table :data="expertAnalysisData" style="width: 100%;height: calc(100% - 530px);" row-key="id" border
+            <el-table :data="expertAnalysisData" style="width: 100%;height: calc(100% - 490px);" row-key="id" border
               :tree-props="{ children: 'children', hasChildren: 'hasChildren' }" :row-class-name="getRowClassName"
               class="weight-table">
               <el-table-column label="序号" align="center" width="80">
@@ -293,6 +293,11 @@
                 </template>
               </el-table-column>
               <el-table-column prop="name" label="标准项" min-width="200">
+                <template #header>
+                  <span>标准项</span>
+                  <el-button type="primary" size="small" style="margin-left: 10px;"
+                    @click="handleExpertAnalysisAddLevel1">新增标准项</el-button>
+                </template>
                 <template #default="{ row }">
                   <span :class="row.level === '1' ? 'level-one-name' : 'level-two-name'">
                     {{ row.name }}
@@ -309,9 +314,16 @@
                   </el-radio-group>
                 </template>
               </el-table-column>
+              <el-table-column prop="remark" label="操作" align="center">
+                <template #default="{ row }">
+                  <el-button type="danger" size="small" @click="handleExpertAnalysisDelete(row)">删除标准项</el-button>
+                  <el-button v-if="row.children" type="primary" size="small"
+                    @click="handleExpertAnalysisAdd(row)">新增子标准项</el-button>
+                </template>
+              </el-table-column>
             </el-table>
             <!-- 其他意见 -->
-            <div style="margin-top: 20px; width: 100%; height: 340px;overflow: auto;">
+            <div style="margin-top: 20px; width: 100%; height: 300px;overflow: auto;">
               <!-- 上面表格评分等级的统计图，一级控制项使用柱状图，二级控制项使用饼图 -->
               <div style="font-size: 16px;font-weight: bold; margin-bottom: 10px;">评分等级统计</div>
               <div
@@ -350,6 +362,51 @@
         </div>
       </template>
     </el-dialog>
+
+    <!-- 新增标准项弹窗 -->
+    <el-dialog v-model="addExpertAnalysisDialog1" title="新增标准项" width="50%">
+      <el-form :model="addExpertAnalysisForm1">
+        <el-form-item label="标准项名称">
+          <el-input v-model="addExpertAnalysisForm1.name" />
+        </el-form-item>
+        <el-form-item label="标准项评分等级">
+          <el-radio-group v-model="addExpertAnalysisForm1.isQualified">
+            <el-radio label="A" value="A" />
+            <el-radio label="B" value="B" />
+            <el-radio label="C" value="C" />
+            <el-radio label="D" value="D" />
+          </el-radio-group>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="cancel-confirm-button">
+          <el-button type="primary" @click="addExpertAnalysisDialog1HandleCancel">取消</el-button>
+          <el-button type="primary" @click="addExpertAnalysisDialog1HandleSubmit">提交</el-button>
+        </div>
+      </template>
+    </el-dialog>
+    <!-- 新增子标准项弹窗 -->
+    <el-dialog v-model="addExpertAnalysisDialog" title="新增子标准项" width="50%">
+      <el-form :model="addExpertAnalysisForm">
+        <el-form-item label="子标准项名称">
+          <el-input v-model="addExpertAnalysisForm.name" />
+        </el-form-item>
+        <el-form-item label="子标准项评分等级">
+          <el-radio-group v-model="addExpertAnalysisForm.isQualified">
+            <el-radio label="A" value="A" />
+            <el-radio label="B" value="B" />
+            <el-radio label="C" value="C" />
+            <el-radio label="D" value="D" />
+          </el-radio-group>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="cancel-confirm-button">
+          <el-button type="primary" @click="addExpertAnalysisDialogHandleCancel">取消</el-button>
+          <el-button type="primary" @click="addExpertAnalysisDialogHandleSubmit">提交</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -383,6 +440,8 @@ const taskTypeAnalysis = ref('');
 const wellCategoryAnalysis = ref('');
 const wellTypeAnalysis = ref('');
 const dateRangeAnalysis = ref([]);
+
+const otherOpinion = ref('');
 
 // ---------- 单井基础数据模拟 ----------
 
@@ -1854,11 +1913,74 @@ const expertInfo = ref({
   职称: '高级工程师',
   联系方式: '1234567890',
   邮箱: '1234567890@qq.com',
-  备注: '备注',
+  备注: '特聘专家',
 });
-const expertAnalysisDialogHandleCancel = () => {
-  expertAnalysisDialog.value = false;
+
+const handleExpertAnalysisDelete = (row) => {
+  console.log('删除标准项', row);
+  expertAnalysisData.value = expertAnalysisData.value.filter(item => item.id !== row.id);
+  ElMessage.success('删除标准项成功');
 };
+
+const addExpertAnalysisDialog1 = ref(false);
+const addExpertAnalysisForm1 = ref({});
+const handleExpertAnalysisAddLevel1 = () => {
+  addExpertAnalysisDialog1.value = true;
+
+};
+
+const addExpertAnalysisDialog1HandleCancel = () => {
+  addExpertAnalysisDialog1.value = false;
+};
+const addExpertAnalysisDialog1HandleSubmit = () => {
+  console.log('addExpertAnalysisForm1', addExpertAnalysisForm1.value);
+
+  if (addExpertAnalysisForm1.value.name == null) {
+    ElMessage.error('请填写标准项名称');
+    return;
+  }
+  addExpertAnalysisForm1.value = {
+    id: `${expertAnalysisData.value.length + 1}`,
+    name: addExpertAnalysisForm1.value.name,
+    value1: null,
+    level: "1",
+    isQualified: addExpertAnalysisForm1.value.isQualified,
+    children: [],
+  };
+  expertAnalysisData.value.push(JSON.parse(JSON.stringify(addExpertAnalysisForm1.value)));
+  addExpertAnalysisDialog1.value = false;
+  ElMessage.success('新增标准项提交成功');
+};
+
+const addExpertAnalysisDialog = ref(false);
+const addExpertAnalysisForm = ref({});
+const addExpertAnalysisStandby = ref(null);
+
+const handleExpertAnalysisAdd = (row) => {
+  addExpertAnalysisDialog.value = true;
+  addExpertAnalysisStandby.value = row;
+};
+
+const addExpertAnalysisDialogHandleCancel = () => {
+  addExpertAnalysisDialog.value = false;
+};
+const addExpertAnalysisDialogHandleSubmit = () => {
+  if (addExpertAnalysisForm.value.name == null || addExpertAnalysisForm.value.isQualified == null) {
+    ElMessage.error('请填写子标准项名称和评分等级');
+    return;
+  }
+  addExpertAnalysisForm.value = {
+    id: `${addExpertAnalysisStandby.value.id}.${addExpertAnalysisStandby.value.children.length + 1}`,
+    name: addExpertAnalysisForm.value.name,
+    value2: null,
+    level: "2",
+    isQualified: addExpertAnalysisForm.value.isQualified,
+  };
+  addExpertAnalysisStandby.value.children.push(JSON.parse(JSON.stringify(addExpertAnalysisForm.value)));
+  addExpertAnalysisDialog.value = false;
+  ElMessage.success('新增子标准项提交成功');
+};
+
 const expertAnalysisDialogHandleSubmit = () => {
   console.log('专家分析数据', expertAnalysisData.value);
   expertAnalysisDialog.value = false;
@@ -2911,6 +3033,7 @@ watch(expertAnalysisData, (newVal) => {
 }, {
   deep: true,
 });
+
 
 onMounted(() => {
   setTimeout(() => {
