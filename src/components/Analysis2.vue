@@ -256,13 +256,13 @@
     </el-dialog>
 
     <!-- 专家分析弹窗 -->
-    <el-dialog v-model="expertAnalysisDialog" title="专家分析" width="80%">
-      <div class="expert-analysis-content" style="height: 60vh;">
+    <el-dialog v-model="expertAnalysisDialog" title="专家分析" width="80%" style="margin-top: 5vh;">
+      <div class="expert-analysis-content" style="height: 80vh;">
         <div class="expert-analysis-content-left">
           <div class="expert-analysis-content-left-title">
-            <!-- 专家信息:姓名 工号 职称 使用 el-form  -->
-            <div class="expert-info" style="display: flex;flex-direction: row;justify-content: space-between;">
-              <el-form :model="expertInfo" label-width="100px" inline disabled="true">
+            <div class="expert-info">
+              <el-form :model="expertInfo" inline disabled="true"
+                style="width: 100%;display: flex;flex-direction: row;justify-content: space-between;">
                 <el-form-item label="专家姓名">
                   <el-input v-model="expertInfo.name" />
                 </el-form-item>
@@ -284,39 +284,60 @@
               </el-form>
             </div>
             <!-- 表格样式美化一下，要区分一级权重和二级权重，并且默认展开所有一级权重 -->
-            <el-table :data="expertAnalysisData" style="width: 100%;height: calc(100% - 350px);" row-key="id" border
-              default-expand-all :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
-              :row-class-name="getRowClassName" class="weight-table">
-              <el-table-column type="index" :index="index" label="序号" width="80" align="center" />
-              <el-table-column prop="name" label="控制项" min-width="200">
+            <el-table :data="expertAnalysisData" style="width: 100%;height: calc(100% - 530px);" row-key="id" border
+              :tree-props="{ children: 'children', hasChildren: 'hasChildren' }" :row-class-name="getRowClassName"
+              class="weight-table">
+              <el-table-column label="序号" align="center" width="80">
                 <template #default="{ row }">
-                  <span :class="row.value1 ? 'level-one-name' : 'level-two-name'">
+                  {{ row.id }}
+                </template>
+              </el-table-column>
+              <el-table-column prop="name" label="标准项" min-width="200">
+                <template #default="{ row }">
+                  <span :class="row.level === '1' ? 'level-one-name' : 'level-two-name'">
                     {{ row.name }}
                   </span>
                 </template>
               </el-table-column>
-              <!-- 打分列,是否合格 -->
-              <el-table-column prop="isQualified" label="是否合格" width="150" align="center">
+              <el-table-column prop="isQualified" label="评分等级" align="center">
                 <template #default="{ row }">
-                  <el-select v-model="row.isQualified" placeholder="请选择">
-                    <el-option label="合格" value="合格" />
-                    <el-option label="基本合格" value="基本合格" />
-                    <el-option label="不合格" value="不合格" />
-                    <el-option label="完全不合格" value="完全不合格" />
-                  </el-select>
-                </template>
-              </el-table-column>
-              <!-- 评价意见 -->
-              <el-table-column prop="score" label="评价意见" align="center">
-                <template #default="{ row }">
-                  <el-input v-model="row.score" type="textarea" :rows="2" />
+                  <el-radio-group v-model="row.isQualified">
+                    <el-radio label="A" value="A" />
+                    <el-radio label="B" value="B" />
+                    <el-radio label="C" value="C" />
+                    <el-radio label="D" value="D" />
+                  </el-radio-group>
                 </template>
               </el-table-column>
             </el-table>
             <!-- 其他意见 -->
-            <el-divider />
-            <div style="font-size: 16px;font-weight: bold; margin-bottom: 10px;">其他意见</div>
-            <el-input v-model="otherOpinion" type="textarea" :rows="7" style="width: 100%;" />
+            <div style="margin-top: 20px; width: 100%; height: 340px;overflow: auto;">
+              <!-- 上面表格评分等级的统计图，一级控制项使用柱状图，二级控制项使用饼图 -->
+              <div style="font-size: 16px;font-weight: bold; margin-bottom: 10px;">评分等级统计</div>
+              <div
+                style="width: 100%;height: calc(100% - 40px); overflow: auto;display: flex;flex-direction: row;justify-content: space-between;">
+                <!-- 一级指标的柱状图 -->
+                <div ref="scoreLevelChartRef" class="chart-container"
+                  style="width: 50%; height: 100%; border-radius: 5px;">
+                </div>
+                <!-- 一级指标的饼图 -->
+                <div ref="scoreLevelPieChartRef" class="chart-container" v-if="false"
+                  style="width: 25%; height: 100%; border-radius: 5px;"> </div>
+                <!-- 二级指标的柱状图 -->
+                <div ref="scoreLevelChart2Ref" class="chart-container"
+                  style="width: 50%; height: 100%; border-radius: 5px;">
+                </div>
+                <!-- 二级指标的饼图 -->
+                <div ref="scoreLevelPieChart2Ref" class="chart-container" v-if="false"
+                  style="width: 25%; height: 100%; border-radius: 5px;"> </div>
+              </div>
+
+            </div>
+            <!-- 其他意见 -->
+            <div style="width: 100%; height: 120px;padding: 10px;">
+              <div style="font-size: 16px;font-weight: bold; margin-bottom: 10px;">其他意见</div>
+              <el-input v-model="otherOpinion" type="textarea" :rows="3" style="width: 100%;" />
+            </div>
 
           </div>
         </div>
@@ -333,7 +354,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watchEffect, watch } from 'vue';
 import * as echarts from 'echarts';
 import { Menu } from '@element-plus/icons-vue';
 import { BottomRight } from '@element-plus/icons-vue';
@@ -987,6 +1008,20 @@ const initSingleWellAnalysisChart = () => {
   }
   const maxVal = echartsRef4ForData.reduce((pre, cur) => cur.value + pre, 0)
 
+  const singleDataRaw = mockSingleData.sample_1.data_raw
+  const singleDataRawKeys = Object.keys(singleDataRaw[0])
+  const singleDataRawData = []
+  singleDataRaw.forEach(it => {
+    singleDataRawKeys.forEach(k => {
+      if (Object.prototype.hasOwnProperty.call(it, k)) {
+        singleDataRawData.push({
+          label: k,
+          value: it[k]
+        })
+      }
+    })
+  })
+
   const singleWellAnalysisChart = echarts.init(singleWellAnalysisChartRef.value);
   singleWellAnalysisChart.setOption({
     title: {
@@ -1049,7 +1084,7 @@ const initSingleWellAnalysisChart = () => {
           type: 'dashed'
         }
       },
-      data: echartsRef4ForData.map(it => filterFieldMapping[it.label])
+      data: echartsRef4ForData.map(it => singleDataRawData.find(it2 => it2.label === it.label)?.value + " = " + filterFieldMapping[it.label])
     },
     graphic: [
       {
@@ -1836,226 +1871,1050 @@ const handleExpertAnalysis = (row) => {
   expertAnalysisData.value = [
     {
       id: "1",
-      name: '入井流体实验',
+      name: '配方体系',
       value1: 0.183,
+      level: "1", // 1:一级权重，2:二级权重
+      isQualified: "",
       children: [
         {
           id: "1.1",
-          name: '水泥浆稠化时间',
+          name: '水泥浆密度',
           value2: 0.411,
+          isQualified: "",
+          level: "2",
+          isQualified: "",
         },
         {
           id: "1.2",
-          name: '初始稠度',
+          name: '水泥浆失水量',
           value2: 0.136,
+          isQualified: "",
+          level: "2",
+          isQualified: "",
         },
         {
           id: "1.3",
-          name: '水泥石抗压强度(24h)',
+          name: '初始稠度',
           value2: 0.349,
+          isQualified: "",
+          level: "2",
+          isQualified: "",
         },
         {
           id: "1.4",
-          name: '水泥浆静置后上下密度差',
+          name: '水泥浆稠化时间',
           value2: 0.104,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "1.5",
+          name: '混合流体相容性稠化时间',
+          value2: 0.104,
+          isQualified: "",
+          level: "2",
+          isQualified: "",
+        },
+        {
+          id: "1.6",
+          name: '游离液',
+          value2: 0.104,
+          isQualified: "",
+          level: "2",
+          isQualified: "",
+        },
+        {
+          id: "1.7",
+          name: '沉降稳定性',
+          value2: 0.104,
+          isQualified: "",
+          level: "2",
+          isQualified: "",
+        },
+        {
+          id: "1.8",
+          name: '水泥浆抗压强度',
+          value2: 0.104,
+          isQualified: "",
+          level: "2",
+          isQualified: "",
         }
       ]
     },
     {
       id: "2",
-      name: '井眼条件',
+      name: '材料准备',
       value1: 0.189,
+      isQualified: "",
+      level: "1",
       children: [
         {
           id: "2.1",
-          name: '环空上返速度',
+          name: '水泥浆材料三证齐全',
           value2: 0.121,
+          isQualified: "",
+          isQualified: "",
+          level: "2",
         },
         {
           id: "2.2",
-          name: '钻井液循环周次',
-          value2: 0.084,
+          name: '水泥混拌单与配方的一致性',
+          value2: 0.121,
+          isQualified: "",
+          isQualified: "",
+          level: "2",
         },
         {
           id: "2.3",
-          name: '进出口密度差',
-          value2: 0.093,
+          name: '性能检验',
+          value2: 0.121,
+          isQualified: "",
+          isQualified: "",
+          level: "2",
         },
         {
           id: "2.4",
-          name: '上窜速度',
-          value2: 0.041,
+          name: '混拌前对混拌缸清理余灰',
+          value2: 0.121,
+          isQualified: "",
+          isQualified: "",
+          level: "2",
         },
         {
           id: "2.5",
-          name: '固井前钻井液塑性粘度',
-          value2: 0.148,
+          name: '混拌过程有专人负责并可追溯',
+          value2: 0.121,
+          isQualified: "",
+          isQualified: "",
+          level: "2",
         },
         {
           id: "2.6",
-          name: '钻头-套管尺寸（环空间隙）',
-          value2: 0.135,
+          name: '混拌质量检验有专人负责并可追溯',
+          value2: 0.121,
+          isQualified: "",
+          isQualified: "",
+          level: "2",
         },
         {
           id: "2.7",
-          name: '井径扩大率',
-          value2: 0.378,
-        }
+          name: '混拌次数',
+          value2: 0.121,
+          isQualified: "",
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "2.8",
+          name: '成品取样检验',
+          value2: 0.121,
+          isQualified: "",
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "2.9",
+          name: '水泥浆大样稠化时间',
+          value2: 0.121,
+          isQualified: "",
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "2.10",
+          name: '水泥浆大样密度测试',
+          value2: 0.121,
+          isQualified: "",
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "2.11",
+          name: '井下流体相容性稠化时间',
+          value2: 0.121,
+          isQualified: "",
+          isQualified: "",
+          level: "2",
+        },
       ]
     },
     {
       id: "3",
-      name: '下套管作业',
+      name: '入井流体实验',
       value1: 0.084,
+      isQualified: "",
+      level: "1",
       children: [
         {
           id: "3.1",
-          name: '套管居中度',
+          name: '水泥浆稠化时间',
           value2: 0.541,
+          isQualified: "",
+          isQualified: "",
+          level: "2",
         },
         {
           id: "3.2",
-          name: '人工井底距油层底界',
+          name: '初始稠度',
           value2: 0.264,
+          isQualified: "",
+          isQualified: "",
+          level: "2",
         },
         {
           id: "3.3",
-          name: '油井阻流环与浮鞋间距',
+          name: '水泥浆抗压强度',
           value2: 0.195,
+          isQualified: "",
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "3.4",
+          name: '水泥浆静置后上下密度差',
+          value2: 0.195,
+          isQualified: "",
+          level: "2",
         }
       ]
     },
     {
       id: "4",
-      name: '固井施工',
+      name: '固井施工设计',
       value1: 0.341,
+      isQualified: "",
+      level: "1",
       children: [
         {
           id: "4.1",
-          name: '前置液体积量占裸眼环空高度',
+          name: '固井施工设计完整性',
           value2: 0.0581,
+          isQualified: "",
+          level: "2",
         },
         {
           id: "4.2",
-          name: '前置液紊流接触时间',
+          name: '浆体流动度',
           value2: 0.0745,
+          isQualified: "",
+          level: "2",
         },
         {
           id: "4.3",
-          name: '浆柱密度差',
+          name: '沉降稳定性',
           value2: 0.0431,
+          isQualified: "",
+          level: "2",
         },
         {
           id: "4.4",
-          name: '隔离液在循环温度下动塑比',
+          name: '水泥石抗压强度',
           value2: 0.0325,
+          isQualified: "",
+          level: "2",
         },
         {
           id: "4.5",
-          name: '隔离液滤失量',
+          name: '水泥浆密度',
           value2: 0.024,
+          isQualified: "",
+          level: "2",
         },
         {
           id: "4.6",
-          name: '水泥浆密度记录偏差',
+          name: '水泥头产品合格证',
           value2: 0.0479,
+          isQualified: "",
+          level: "2",
         },
         {
           id: "4.7",
-          name: '测量记录间隔',
+          name: '水泥浆用量附加量',
           value2: 0.0311,
+          isQualified: "",
+          level: "2",
         },
         {
           id: "4.8",
-          name: '中停时间',
+          name: '顶替液附加量',
           value2: 0.0795,
+          isQualified: "",
+          level: "2",
         },
-        {
-          id: "4.9",
-          name: '施工参数（排量、压力、水泥浆密度、注入量等）记录',
-          value2: 0.0341,
-        },
-        {
-          id: "4.10",
-          name: '胶塞入井',
-          value2: 0.0727,
-        },
-        {
-          id: "4.11",
-          name: '替量符合固井施工设计要求',
-          value2: 0.103,
-        },
-        {
-          id: "4.12",
-          name: '顶替过程连续',
-          value2: 0.0705,
-        },
-        {
-          id: "4.13",
-          name: '压力有监控记录',
-          value2: 0.0205,
-        },
-        {
-          id: "4.14",
-          name: '排量有监控记录',
-          value2: 0.0235,
-        },
-        {
-          id: "4.15",
-          name: '井口返出情况有监控记录',
-          value2: 0.0282,
-        },
-        {
-          id: "4.16",
-          name: '碰压',
-          value2: 0.063,
-        },
-        {
-          id: "4.17",
-          name: '无碰压现象，顶替量－设计顶替量',
-          value2: 0.0691,
-        },
-        {
-          id: "4.18",
-          name: '小排量碰压，碰压附加值',
-          value2: 0.033,
-        },
-        {
-          id: "4.19",
-          name: '下胶塞清水静压穿透压力',
-          value2: 0.0161,
-        }
       ]
     },
     {
       id: "5",
-      name: '水泥浆返高',
+      name: '井眼条件',
       value1: 0.203,
+      isQualified: "",
+      level: "1",
       children: [
         {
           id: "5.1",
-          name: '表层套管',
+          name: '环空返速',
           value2: 0.144,
+          isQualified: "",
+          level: "2",
         },
         {
           id: "5.2",
-          name: '技术套管',
+          name: '井眼承压能力',
           value2: 0.281,
+          isQualified: "",
+          level: "2",
         },
         {
           id: "5.3",
-          name: '生产套管',
+          name: '井筒压力',
           value2: 0.575,
-        }
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "5.4",
+          name: '钻井液循环周次',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "5.5",
+          name: '进出口密度差',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "5.6",
+          name: '上窜速度',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "5.7",
+          name: '钻井液PH',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "5.8",
+          name: '钻井液塑性粘度',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "5.9",
+          name: '钻井液摩阻系数',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "5.10",
+          name: '钻井液失水量',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "5.11",
+          name: '环空间隙',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "5.12",
+          name: '全角变化率',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "5.13",
+          name: '平均井径扩大率',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "5.14",
+          name: '井斜角',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+      ],
+    },
+    {
+      id: "6",
+      name: '下套管作业',
+      value1: 0.084,
+      isQualified: "",
+      level: "1",
+      children: [
+        {
+          id: "6.1",
+          name: '扶正器安放',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "6.2",
+          name: '人工井底距油层底界',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "6.3",
+          name: '人工井底距气层底界',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "6.4",
+          name: '阻流环与浮鞋间距',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+      ]
+    },
+    {
+      id: "7",
+      name: '固井施工准备',
+      value1: 0.084,
+      isQualified: "",
+      level: "1",
+      children: [
+        {
+          id: "7.1",
+          name: '固井施工用水量',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "7.2",
+          name: '水质PH值',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "7.3",
+          name: '供水设施',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "7.4",
+          name: '固井设备',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "7.5",
+          name: '仪表性能参数',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+      ]
+    },
+    {
+      id: "8",
+      name: '固井施工',
+      value1: 0.084,
+      isQualified: "",
+      level: "1",
+      children: [
+        {
+          id: "8.1",
+          name: '前置液体积量占裸眼环空高度',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "8.2",
+          name: '前置液紊流接触时间',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "8.3",
+          name: '冲洗液密度',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "8.4",
+          name: '隔离液密度',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "8.5",
+          name: '隔离液动塑比',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "8.6",
+          name: '隔离液滤失量',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "8.7",
+          name: '注水泥顺序',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "8.8",
+          name: '水泥浆密度',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "8.9",
+          name: '测量记录间隔',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "8.10",
+          name: '中停时间',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "8.11",
+          name: '注水泥浆量',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "8.12",
+          name: '泵注排量',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "8.13",
+          name: '胶塞入井',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "8.14",
+          name: '顶替量',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "8.15",
+          name: '顶替过程连续',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "8.16",
+          name: '压力',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "8.17",
+          name: '井口返出情况',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "8.18",
+          name: '碰压',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "8.19",
+          name: '无碰压现象顶替量差值',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "8.20",
+          name: '小排量碰压附加值',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "8.21",
+          name: '下胶塞清水静压穿透压力',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "8.22",
+          name: '试压标准',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "8.23",
+          name: '允许压降',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+      ]
+    },
+    {
+      id: "9",
+      name: '复杂地质条件',
+      value1: 0.084,
+      isQualified: "",
+      level: "1",
+      children: [
+        {
+          id: "9.1",
+          name: '水泥返高要求',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "9.2",
+          name: '井漏处置措施',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "9.3",
+          name: '溢漏同存处置措施',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
+        {
+          id: "9.4",
+          name: '油气侵处置措施',
+          value2: 0.575,
+          isQualified: "",
+          level: "2",
+        },
       ]
     }
   ]
+  setTimeout(() => {
+    initScoreLevelChart1();
+    initScoreLevelChart2();
+  });
 };
+
+// ---------- 一级指标评分等级统计图表初始化 ----------
+const scoreLevelChartRef = ref(null);
+const scoreLevelPieChartRef = ref(null);
+let scoreLevelChart = null;
+let scoreLevelPieChart = null;
+
+const initScoreLevelChart1 = () => {
+  scoreLevelChart = echarts.init(scoreLevelChartRef.value);
+  scoreLevelChart.setOption({
+    grid: { left: '4%', right: '4%', bottom: '0%', top: '20%', containLabel: true },
+    title: {
+      text: '一级指标评分等级统计',
+      left: 'center',
+      top: '0',
+      textStyle: {
+        color: '#666',
+        fontWeight: 'bold',
+        fontSize: 16,
+      },
+    },
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'shadow' },
+      backgroundColor: 'rgba(50,50,50,0.9)',
+      textStyle: { color: '#fff' },
+      formatter: function (params) {
+        let tar = params[0]?.data;
+        let detailList = '';
+        if (tar && tar.remark && tar.remark.length > 0) {
+          detailList = '<br/>' + tar.remark.map((x, i) => ` > ${x}`).join('<br/>');
+        }
+        return `${params[0].name} 数量: ${tar.value}${detailList}`;
+      }
+    },
+    legend: {
+      show: true,
+      data: ['A', 'B', 'C', 'D'],
+      textStyle: {
+        color: '#666',
+        fontWeight: 'bold',
+        fontSize: 15,
+      },
+      itemWidth: 10,
+      itemHeight: 10,
+      itemGap: 10,
+    },
+    xAxis: {
+      type: 'category',
+      data: ['A', 'B', 'C', 'D'],
+      axisLabel: {
+        color: '#666',
+        fontWeight: 'bold',
+        fontSize: 15,
+        rotate: 0
+      },
+      axisLine: { lineStyle: { color: '#bbb' } },
+      axisTick: { show: false }
+    },
+    yAxis: {
+      type: 'value',
+      name: '数量',
+      show: false,
+      axisLabel: { color: '#666' },
+      splitLine: {
+        lineStyle: {
+          type: 'dashed',
+          color: '#eee'
+        }
+      }
+    },
+    series: [{
+      data: [
+        {
+          value: expertAnalysisData.value.filter(item => item.isQualified === "A").length,
+          name: 'A',
+          remark: expertAnalysisData.value.filter(item => item.isQualified === "A").map(item => item.name)
+        },
+        {
+          value: expertAnalysisData.value.filter(item => item.isQualified === "B").length,
+          name: 'B',
+          remark: expertAnalysisData.value.filter(item => item.isQualified === "B").map(item => item.name)
+        },
+        {
+          value: expertAnalysisData.value.filter(item => item.isQualified === "C").length,
+          name: 'C',
+          remark: expertAnalysisData.value.filter(item => item.isQualified === "C").map(item => item.name)
+        },
+        {
+          value: expertAnalysisData.value.filter(item => item.isQualified === "D").length,
+          name: 'D',
+          remark: expertAnalysisData.value.filter(item => item.isQualified === "D").map(item => item.name)
+        },
+      ],
+      type: 'bar',
+      itemStyle: {
+        borderRadius: [10, 10, 0, 0],
+        color: function (params) {
+          const colorList = [
+            '#4fa8f9', // 蓝
+            '#5ad8a6', // 绿
+            '#faad14', // 黄
+            '#f2637b', // 红
+          ];
+          return colorList[params.dataIndex];
+        },
+        shadowColor: 'rgba(0,0,0,0.12)',
+        shadowBlur: 8
+      },
+      barWidth: '35%',
+      label: {
+        show: true,
+        position: 'top',
+        color: '#333',
+        fontWeight: 'bold',
+        fontSize: 16
+      }
+    }],
+    animationDuration: 900,
+    animationEasing: 'cubicOut',
+  });
+  // 点击柱状图， 实现下钻
+  scoreLevelChart.on('click', (params) => {
+    console.log('点击了柱状图', params);
+    currentDrillLevel.value = 'controlItem';
+    selectedBlock.value = params.name;
+    scoreLevelChart.setOption({
+      grid: { left: '4%', right: '4%', bottom: '0%', top: '20%', containLabel: true },
+      series: params.data.remark.map(item => {
+        return {
+          type: 'bar',
+          name: item,
+          data: [
+            1, 2, 3, 4
+          ]
+        }
+      }),
+      animationDuration: 900,
+      animationEasing: 'cubicOut',
+    })
+  });
+};
+
+// ---------- 二级指标评分等级统计图表初始化 ----------
+const scoreLevelChart2Ref = ref(null);
+const scoreLevelPieChart2Ref = ref(null);
+let scoreLevelChart2 = null;
+let scoreLevelPieChart2 = null;
+const initScoreLevelChart2 = () => {
+  scoreLevelChart2 = echarts.init(scoreLevelChart2Ref.value);
+  scoreLevelChart2.setOption({
+    grid: { left: '4%', right: '4%', bottom: '0%', top: '20%', containLabel: true },
+    title: {
+      text: '二级指标评分等级统计',
+      left: 'center',
+      top: '0',
+      textStyle: {
+        color: '#666',
+        fontWeight: 'bold',
+        fontSize: 16,
+      },
+    },
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'shadow' },
+      backgroundColor: 'rgba(50,50,50,0.9)',
+      textStyle: { color: '#fff' },
+      formatter: function (params) {
+        console.log('params', params);
+        let tar = params[0]?.data;
+        let detailList = '';
+        if (tar && tar.remark && tar.remark.length > 0) {
+          detailList = '<br/>' + tar.remark.flat().map((x, i) => ` > ${x}`).join('<br/>');
+        }
+        return `${params[0].name} 数量: ${tar.value}${detailList}`;
+      }
+    },
+    legend: {
+      show: true,
+      data: ['A', 'B', 'C', 'D'],
+      textStyle: {
+        color: '#666',
+        fontWeight: 'bold',
+        fontSize: 15,
+      },
+      itemWidth: 10,
+      itemHeight: 10,
+      itemGap: 10,
+    },
+    xAxis: {
+      type: 'category',
+      data: ['A', 'B', 'C', 'D'],
+      axisLabel: {
+        color: '#666',
+        fontWeight: 'bold',
+        fontSize: 15,
+        rotate: 0
+      },
+      axisLine: { lineStyle: { color: '#bbb' } },
+      axisTick: { show: false }
+    },
+    yAxis: {
+      type: 'value',
+      name: '数量',
+      show: false,
+      axisLabel: { color: '#666' },
+      splitLine: {
+        lineStyle: {
+          type: 'dashed',
+          color: '#eee'
+        }
+      }
+    },
+    series: [{
+      data: [
+        {
+          value: expertAnalysisData.value.reduce((total, item) => total + item.children.filter(x => x.isQualified === "A").length, 0),
+          name: 'A',
+          remark: expertAnalysisData.value.map(item => item.children.filter(x => x.isQualified === "A")).flat().map(x => x.name)
+        },
+        {
+          value: expertAnalysisData.value.reduce((total, item) => total + item.children.filter(x => x.isQualified === "B").length, 0),
+          name: 'B',
+          remark: expertAnalysisData.value.map(item => item.children.filter(x => x.isQualified === "B")).flat().map(x => x.name)
+        },
+        {
+          value: expertAnalysisData.value.reduce((total, item) => total + item.children.filter(x => x.isQualified === "C").length, 0),
+          name: 'C',
+          remark: expertAnalysisData.value.map(item => item.children.filter(x => x.isQualified === "C")).flat().map(x => x.name)
+        },
+        {
+          value: expertAnalysisData.value.reduce((total, item) => total + item.children.filter(x => x.isQualified === "D").length, 0),
+          name: 'D',
+          remark: expertAnalysisData.value.map(item => item.children.filter(x => x.isQualified === "D")).flat().map(x => x.name)
+        },
+      ],
+      type: 'bar',
+      itemStyle: {
+        borderRadius: [10, 10, 0, 0],
+        color: function (params) {
+          const colorList = [
+            // 跟上面的区别开
+            '#4fa8f9', // 二级指标蓝
+            '#5ad8a6', // 二级指标绿
+            '#faad14', // 二级指标黄
+            '#f2637b', // 二级指标红
+          ];
+          return colorList[params.dataIndex];
+        },
+        shadowColor: 'rgba(0,0,0,0.12)',
+        shadowBlur: 8
+      },
+      barWidth: '35%',
+      label: {
+        show: true,
+        position: 'top',
+        color: '#333',
+        fontWeight: 'bold',
+        fontSize: 16
+      }
+    }],
+    animationDuration: 900,
+    animationEasing: 'cubicOut',
+  });
+  // 点击柱状图， 展开该控制项有多少个
+  scoreLevelChart2.on('click', (params) => {
+    console.log('点击了柱状图', params);
+    scoreLevelPieChart2 = echarts.init(scoreLevelPieChart2Ref.value);
+    scoreLevelPieChart2.setOption({
+      grid: { left: '0%', right: '0%', bottom: '0%', top: '0%', containLabel: true },
+      legend: {
+        show: true,
+        data: params.data.remark
+      },
+      series: [{
+        name: '评分等级',
+        type: 'pie',
+        radius: '50%',
+        label: {
+          show: true,
+          position: 'outside',
+          color: '#333',
+          fontWeight: 'bold',
+          fontSize: 16,
+          formatter: '{c} ({d}%)'
+        },
+        data: params.data.remark.map(item => {
+          return {
+            name: item,
+            value: expertAnalysisData.value.find(x => x.name === item).children.length,
+          }
+        }),
+      }]
+    });
+  });
+};
+
+watch(expertAnalysisData, (newVal) => {
+  if (scoreLevelChart) {
+    scoreLevelChart.setOption({
+      series: [
+        {
+          data: [
+            {
+              value: expertAnalysisData.value.filter(item => item.isQualified === "A").length,
+              name: 'A',
+              remark: expertAnalysisData.value.filter(item => item.isQualified === "A").map(item => item.name)
+            },
+            {
+              value: expertAnalysisData.value.filter(item => item.isQualified === "B").length,
+              name: 'B',
+              remark: expertAnalysisData.value.filter(item => item.isQualified === "B").map(item => item.name)
+            },
+            {
+              value: expertAnalysisData.value.filter(item => item.isQualified === "C").length,
+              name: 'C',
+              remark: expertAnalysisData.value.filter(item => item.isQualified === "C").map(item => item.name)
+            },
+            {
+              value: expertAnalysisData.value.filter(item => item.isQualified === "D").length,
+              name: 'D',
+              remark: expertAnalysisData.value.filter(item => item.isQualified === "D").map(item => item.name)
+            },
+          ],
+          type: 'bar'
+        }],
+    });
+  }
+  if (scoreLevelPieChart) {
+    scoreLevelPieChart.setOption({
+      series: [{ data: [newVal.filter(item => item.isQualified === "A").length, newVal.filter(item => item.isQualified === "B").length, newVal.filter(item => item.isQualified === "C").length, newVal.filter(item => item.isQualified === "D").length], type: 'pie' }],
+    });
+  }
+  if (scoreLevelChart2) {
+    scoreLevelChart2.setOption({
+      series: [{
+        data: [{
+          value: expertAnalysisData.value.reduce((total, item) => total + item.children.filter(x => x.isQualified === "A").length, 0),
+          name: 'A',
+          remark: expertAnalysisData.value.map(item => item.children.filter(x => x.isQualified === "A")).flat().map(x => x.name)
+        },
+        {
+          value: expertAnalysisData.value.reduce((total, item) => total + item.children.filter(x => x.isQualified === "B").length, 0),
+          name: 'B',
+          remark: expertAnalysisData.value.map(item => item.children.filter(x => x.isQualified === "B")).flat().map(x => x.name)
+        },
+        {
+          value: expertAnalysisData.value.reduce((total, item) => total + item.children.filter(x => x.isQualified === "C").length, 0),
+          name: 'C',
+          remark: expertAnalysisData.value.map(item => item.children.filter(x => x.isQualified === "C").flat().map(x => x.name))
+        },
+        {
+          value: expertAnalysisData.value.reduce((total, item) => total + item.children.filter(x => x.isQualified === "D").length, 0),
+          name: 'D',
+          remark: expertAnalysisData.value.map(item => item.children.filter(x => x.isQualified === "D").flat().map(x => x.name))
+        }]
+      }],
+    });
+  }
+  if (scoreLevelPieChart2) {
+    scoreLevelPieChart2.setOption({
+      series: [{ data: [newVal.filter(item => item.isQualified === "A").length, newVal.filter(item => item.isQualified === "B").length, newVal.filter(item => item.isQualified === "C").length, newVal.filter(item => item.isQualified === "D").length], type: 'pie' }],
+    });
+  }
+}, {
+  deep: true,
+});
 
 onMounted(() => {
   setTimeout(() => {
     initCharts();
-
   });
 });
 </script>
@@ -2170,10 +3029,7 @@ onMounted(() => {
 }
 
 .expert-info {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  height: 100px;
+  height: 50px;
 }
 
 .expert-info-item {
@@ -2242,9 +3098,13 @@ onMounted(() => {
 
 .level-one-name {
   font-weight: bold;
+  font-size: 16px;
+  color: #3385ff;
 }
 
 .level-two-name {
   font-weight: bold;
+  margin-left: 40px;
+  color: #999999;
 }
 </style>
