@@ -284,7 +284,7 @@
               </el-form>
             </div>
             <!-- 表格样式美化一下，要区分一级权重和二级权重，并且默认展开所有一级权重 -->
-            <el-table :data="expertAnalysisData" style="width: 100%;height: calc(100% - 490px);" row-key="id" border
+            <el-table :data="expertAnalysisData" style="width: 100%;height: 500px;" row-key="id" border
               :tree-props="{ children: 'children', hasChildren: 'hasChildren' }" :row-class-name="getRowClassName"
               class="weight-table">
               <el-table-column label="序号" align="center" width="80">
@@ -347,7 +347,9 @@
             </div>
             <!-- 其他意见 -->
             <div style="width: 100%; height: 120px;padding: 10px;">
-              <div style="font-size: 16px;font-weight: bold; margin-bottom: 10px;">其他意见</div>
+              <div style="font-size: 16px;font-weight: bold; margin-bottom: 10px;">
+                其他意见（示例：入井流体实验+水泥浆+D，该意见将同步到9大控制项影响因素中）
+              </div>
               <el-input v-model="otherOpinion" type="textarea" :rows="3" style="width: 100%;" />
             </div>
 
